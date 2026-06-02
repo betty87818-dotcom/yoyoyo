@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌟 班級超級之星 - 24種圖鑑擴充版 🌟</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+        body { font-family: 'Nunito', 'Microsoft JhengHei', sans-serif; background-color: #f8fafc; overflow-x: hidden; transition: all 0.8s ease; }
+        
+        .card-pop { transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .card-pop:hover { transform: translateY(-5px); }
+        .card-pop:active { transform: scale(0.95); }
+
+        .score-bump { animation: scoreBump 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        @keyframes scoreBump { 0% { transform: scale(1); } 50% { transform: scale(1.5); color: #ef4444; } 100% { transform: scale(1); } }
+
+        .level-up-glow { animation: levelUpGlow 1.5s ease-out; }
+        @keyframes levelUpGlow { 0% { transform: scale(1) rotate(0deg); filter: brightness(1); } 50% { transform: scale(2) rotate(360deg); filter: brightness(2) drop-shadow(0 0 20px yellow); } 100% { transform: scale(1) rotate(360deg); filter: brightness(1); } }
+
+        .boss-hit { animation: bossHit 0.4s ease; filter: brightness(0.5) sepia(1) hue-rotate(-50deg) saturate(5); }
+        @keyframes bossHit { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-10px) rotate(-5deg); } 40% { transform: translateX(10px) rotate(5deg); } 60% { transform: translateX(-10px) rotate(-5deg); } 80% { transform: translateX(10px) rotate(5deg); } }
+
+        .crit-text { position: absolute; pointer-events: none; z-index: 100; font-weight: 900; font-size: 2rem; color: #ff0000; text-shadow: 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff; animation: floatUpFade 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .fever-text { position: absolute; pointer-events: none; z-index: 100; font-weight: 900; font-size: 2rem; color: #f59e0b; text-shadow: 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff; animation: floatUpFade 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .shield-text { position: absolute; pointer-events: none; z-index: 100; font-weight: 900; font-size: 1.5rem; color: #3b82f6; text-shadow: 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff; animation: shatterFade 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .heal-text { position: absolute; pointer-events: none; z-index: 100; font-weight: 900; font-size: 2rem; color: #22c55e; text-shadow: 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff; animation: floatUpFade 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        
+        @keyframes floatUpFade { 0% { opacity: 0; transform: translateY(20px) scale(0.5) rotate(-10deg); } 20% { opacity: 1; transform: translateY(-10px) scale(1.2) rotate(5deg); } 80% { opacity: 1; transform: translateY(-30px) scale(1) rotate(0deg); } 100% { opacity: 0; transform: translateY(-50px) scale(0.8); } }
+        @keyframes shatterFade { 0% { opacity: 0; transform: scale(0.5); } 20% { opacity: 1; transform: scale(1.5) rotate(15deg); } 100% { opacity: 0; transform: translateY(20px) scale(1) rotate(-10deg); filter: blur(4px); } }
+
+        @keyframes pulse-slow { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.9; transform: scale(1.02); } }
+        .animate-pulse-slow { animation: pulse-slow 3s ease-in-out infinite; }
+        @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .animate-spin-slow { animation: spin-slow 15s linear infinite; }
+        @keyframes fall { 0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+        .confetti { position: fixed; top: -10px; z-index: 9999; width: 12px; height: 12px; animation: fall linear forwards; pointer-events: none; }
+
+        body.fever-mode { background-color: #fef9c3; box-shadow: inset 0 0 50px rgba(234, 179, 8, 0.5); }
+        .fever-border { animation: feverBorder 1s infinite alternate; }
+        @keyframes feverBorder { from { box-shadow: 0 0 10px #f59e0b, inset 0 0 10px #f59e0b; border-color: #fcd34d; } to { box-shadow: 0 0 30px #ef4444, inset 0 0 20px #ef4444; border-color: #f87171; } }
+
+        body.focus-mode { background-color: #0f172a; color: #94a3b8; }
+        body.focus-mode .glass-panel { background-color: rgba(30, 41, 59, 0.7) !important; border-color: #334155 !important; }
+        body.focus-mode .text-slate-700 { color: #cbd5e1 !important; }
+        .star-layer { position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: 0; transition: opacity 2s; background-image: radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)), radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)), radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0,0,0,0)), radial-gradient(2px 2px at 90px 40px, #fff, rgba(0,0,0,0)), radial-gradient(2px 2px at 130px 80px, #fff, rgba(0,0,0,0)), radial-gradient(2px 2px at 160px 120px, #ddd, rgba(0,0,0,0)); background-repeat: repeat; background-size: 200px 200px; animation: starsAnim 100s linear infinite; }
+        body.focus-mode .star-layer { opacity: 1; }
+        @keyframes starsAnim { 0% { background-position: 0 0; } 100% { background-position: -1000px 1000px; } }
+
+        /* 圖鑑卷軸優化 */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(30, 41, 59, 0.5); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #64748b; }
+    </style>
+</head>
+<body class="text-slate-800 pb-12 transition-all duration-1000">
+
+    <div class="star-layer"></div>
+
+    <div id="fever-timer-display" class="hidden fixed top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-orange-500 to-red-500 text-white px-8 py-3 rounded-full font-black text-3xl shadow-[0_0_30px_rgba(239,68,68,0.8)] z-50 animate-pulse flex items-center gap-3 border-4 border-yellow-300">
+        <i class="fa-solid fa-fire text-yellow-300"></i><span>狂熱雙倍 <span id="fever-time-text" class="tabular-nums">03:00</span></span>
+    </div>
+
+    <div id="focus-timer-display" class="hidden fixed top-4 left-1/2 transform -translate-x-1/2 bg-slate-800 text-indigo-300 px-8 py-3 rounded-full font-black text-2xl shadow-[0_0_20px_rgba(0,0,0,0.8)] z-50 flex items-center gap-3 border-2 border-indigo-500">
+        <i class="fa-solid fa-moon text-yellow-200 animate-pulse-slow"></i><span>專注時光 <span id="focus-time-text" class="tabular-nums text-white">05:00</span></span>
+        <button onclick="endFocusMode()" class="ml-4 bg-slate-700 hover:bg-slate-600 text-white text-sm px-3 py-1 rounded-lg">結束</button>
+    </div>
+
+    <div id="confetti-container"></div>
+    <div id="floating-effects-layer" class="fixed inset-0 pointer-events-none z-50"></div>
+
+    <div class="max-w-7xl mx-auto p-2 sm:p-4 relative z-10">
+        
+        <!-- ⚔️ 魔王系統 -->
+        <div class="glass-panel mb-4 bg-slate-900 p-4 sm:px-6 sm:py-4 rounded-3xl shadow-xl border-4 border-slate-700 flex flex-col sm:flex-row items-center gap-4 relative overflow-hidden" id="boss-container">
+            <div class="absolute inset-0 bg-gradient-to-r from-red-900/50 to-purple-900/50 pointer-events-none"></div>
+            
+            <button onclick="openModal('boss-setup')" class="absolute top-2 right-4 text-slate-500 hover:text-white transition-colors z-20" title="魔王討伐設定"><i class="fa-solid fa-gear"></i></button>
+
+            <div class="flex items-center gap-3 z-10 w-full sm:w-auto justify-center sm:justify-start relative">
+                <div id="boss-heal-effect" class="absolute -top-6 left-1/2 transform -translate-x-1/2 w-full text-center pointer-events-none"></div>
+                <div id="boss-emoji" class="text-5xl filter drop-shadow-[0_0_8px_rgba(255,0,0,0.8)] transition-transform duration-200 relative">🗣️</div>
+                <div>
+                    <h2 class="text-[10px] font-bold text-slate-400 tracking-widest">目前討伐目標 <span id="boss-dmg-hint" class="text-yellow-400 ml-1"></span></h2>
+                    <h2 id="boss-name" class="text-xl font-black text-white">愛講話大魔王</h2>
+                </div>
+            </div>
+            
+            <div class="flex-1 w-full flex items-center gap-3 z-10">
+                <div class="flex-1 h-8 bg-slate-800 rounded-full overflow-hidden shadow-inner border-2 border-slate-600 relative">
+                    <div id="boss-hp-bar" class="h-full bg-gradient-to-r from-red-500 to-orange-500 transition-all duration-500 ease-out flex items-center justify-end px-2" style="width: 100%;">
+                        <div class="absolute inset-0 bg-white/20 animate-pulse"></div>
+                    </div>
+                     <div id="boss-dead-overlay" class="hidden absolute inset-0 bg-slate-900/80 flex items-center justify-center">
+                        <span class="text-red-500 font-black text-sm tracking-widest">已擊敗 (請至設定更換魔王)</span>
+                     </div>
+                </div>
+                <div class="font-black text-2xl tabular-nums text-red-400 min-w-[120px] text-right">
+                    HP: <span id="boss-hp-display">100</span> / <span id="boss-maxhp-display">100</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 標題與工具列 -->
+        <div class="glass-panel flex flex-col lg:flex-row justify-between items-center mb-6 gap-4 bg-white p-4 rounded-3xl shadow-sm border-2 border-slate-200" id="main-toolbar">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-bolt text-yellow-500 text-3xl animate-pulse"></i>
+                <h1 class="text-2xl sm:text-3xl font-black text-slate-700 tracking-wide transition-colors">星際寵物爭霸戰</h1>
+                <div class="ml-2 flex items-center text-xs font-bold px-2 py-1 rounded-full bg-slate-100/50" id="sync-status">
+                    <i class="fa-solid fa-check text-green-500 mr-1"></i><span class="text-slate-500 hidden sm:inline">已儲存</span>
+                </div>
+            </div>
+            
+            <div class="flex flex-wrap justify-center gap-2 sm:gap-3 items-center">
+                <!-- 老師音效板 -->
+                <div class="flex bg-slate-100/50 rounded-xl p-1 gap-1 border border-slate-200 mr-2 backdrop-blur-sm">
+                    <button onclick="playSFX('correct')" class="w-8 h-8 rounded-lg text-emerald-500 hover:bg-emerald-100 font-black transition-colors" title="答對音效"><i class="fa-regular fa-circle"></i></button>
+                    <button onclick="playSFX('wrong')" class="w-8 h-8 rounded-lg text-rose-500 hover:bg-rose-100 font-black transition-colors" title="答錯音效"><i class="fa-solid fa-xmark"></i></button>
+                    <button onclick="playSFX('drumroll')" class="w-8 h-8 rounded-lg text-amber-600 hover:bg-amber-100 font-black transition-colors" title="緊張鼓聲"><i class="fa-solid fa-drum"></i></button>
+                    <div class="w-px bg-slate-300 mx-1 my-1"></div>
+                    <button onclick="toggleSound()" class="w-8 h-8 rounded-lg text-slate-500 hover:bg-slate-200 transition-colors" title="全域靜音切換"><i id="sound-icon" class="fa-solid fa-volume-high"></i></button>
+                </div>
+                
+                <button onclick="openModal('focus-setup')" class="flex items-center gap-2 px-3 py-2 rounded-xl font-bold bg-slate-800 text-indigo-300 hover:bg-slate-700 shadow-md shadow-slate-400 transition-all card-pop">
+                    <i class="fa-solid fa-headphones"></i><span class="hidden xl:inline">專注</span>
+                </button>
+
+                <button onclick="openDestinyWheel()" class="flex items-center gap-2 px-3 py-2 rounded-xl font-bold bg-gradient-to-r from-fuchsia-500 to-purple-600 text-white hover:from-fuchsia-600 hover:to-purple-700 shadow-md shadow-purple-200 transition-all card-pop">
+                    <i class="fa-solid fa-dharmachakra animate-spin-slow"></i><span class="hidden xl:inline">轉盤</span>
+                </button>
+
+                <button onclick="openModal('fever-setup')" class="flex items-center gap-2 px-3 py-2 rounded-xl font-bold bg-gradient-to-r from-orange-400 to-red-500 text-white hover:from-orange-500 hover:to-red-600 shadow-md shadow-red-200 transition-all card-pop">
+                    <i class="fa-solid fa-fire animate-pulse"></i><span class="hidden xl:inline">計時</span>
+                </button>
+
+                <button onclick="openModal('roulette')" class="flex items-center gap-2 px-3 py-2 rounded-xl font-bold bg-gradient-to-r from-yellow-400 to-amber-500 text-white hover:from-yellow-500 hover:to-amber-600 shadow-md shadow-amber-200 transition-all card-pop">
+                    <i class="fa-solid fa-rotate"></i><span class="hidden xl:inline">抽籤</span>
+                </button>
+
+                <button onclick="openModal('pokedex')" class="flex items-center gap-2 px-3 py-2 rounded-xl font-bold bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-cyan-600 hover:to-blue-600 shadow-md shadow-blue-200 transition-all card-pop">
+                    <i class="fa-solid fa-book"></i><span class="hidden xl:inline">圖鑑</span>
+                </button>
+
+                <button onclick="openModal('settlement')" class="flex items-center gap-2 px-3 py-2 rounded-xl font-bold bg-slate-200 text-slate-700 hover:bg-slate-300 transition-all card-pop" title="每週結算"><i class="fa-solid fa-trophy"></i></button>
+                <button onclick="openModal('factory-reset')" class="flex items-center gap-2 px-3 py-2 rounded-xl font-bold bg-rose-100 text-rose-600 hover:bg-rose-200 transition-all card-pop" title="新學期重置"><i class="fa-solid fa-rotate-right"></i></button>
+                <button onclick="toggleEditMode()" id="edit-btn" class="flex items-center gap-2 px-3 py-2 rounded-xl font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all card-pop" title="設定"><i class="fa-solid fa-gear"></i></button>
+            </div>
+        </div>
+
+        <!-- 小組卡片網格 -->
+        <div id="groups-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+
+    </div>
+
+    <!-- === 所有彈出視窗 === -->
+    <div id="modal-overlay" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex flex-col items-center justify-center z-50 p-4 hidden">
+        
+        <!-- 魔王設定視窗 -->
+        <div id="modal-boss-setup" class="hidden bg-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border-4 border-red-500 text-center relative max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <button onclick="closeModal()" class="absolute top-4 right-4 w-10 h-10 bg-slate-700 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-600 font-bold"><i class="fa-solid fa-xmark"></i></button>
+            <i class="fa-solid fa-skull text-6xl text-red-500 mb-4 animate-pulse"></i>
+            <h3 class="text-3xl font-black text-white mb-6">魔王討伐設定</h3>
+            <div class="text-left flex flex-col gap-5 mb-8">
+                 <div>
+                    <label class="text-slate-300 font-bold mb-1 block">😈 切換魔王 (順序)</label>
+                    <div class="flex gap-2">
+                        <button onclick="prevBoss()" class="bg-slate-700 text-white px-3 py-2 rounded-lg hover:bg-slate-600"><i class="fa-solid fa-chevron-left"></i></button>
+                        <div id="setup-boss-preview" class="flex-1 bg-slate-900 border-2 border-slate-600 rounded-xl px-4 py-2 text-white font-bold text-center flex justify-center items-center gap-2"></div>
+                        <button onclick="nextBoss()" class="bg-slate-700 text-white px-3 py-2 rounded-lg hover:bg-slate-600"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                </div>
+                <div><label class="text-slate-300 font-bold mb-1 block">🩸 魔王總血量 (HP)</label><input type="number" id="setup-boss-hp" class="w-full bg-slate-900 border-2 border-slate-600 rounded-xl px-4 py-2 text-white font-bold text-xl outline-none focus:border-red-500"></div>
+                <div><label class="text-slate-300 font-bold mb-1 block">⚔️ 攻擊力倍率 (加1分=扣幾滴血)</label><input type="number" id="setup-boss-mult" class="w-full bg-slate-900 border-2 border-slate-600 rounded-xl px-4 py-2 text-white font-bold text-xl outline-none focus:border-red-500"></div>
+                <div><label class="text-slate-300 font-bold mb-1 block">🎁 討伐獎勵 (打倒後各加幾分)</label><input type="number" id="setup-boss-reward" class="w-full bg-slate-900 border-2 border-slate-600 rounded-xl px-4 py-2 text-white font-bold text-xl outline-none focus:border-red-500"></div>
+            </div>
+            <button onclick="saveBossSetup()" class="w-full py-3 rounded-xl font-bold bg-red-500 text-white hover:bg-red-600 shadow-lg card-pop text-lg mb-3">儲存設定</button>
+            <button onclick="healBossFull()" class="w-full py-2 rounded-xl font-bold bg-green-600 text-white hover:bg-green-700 shadow-sm transition-colors text-sm"><i class="fa-solid fa-heart mr-2"></i>強制補滿魔王血量</button>
+        </div>
+
+        <!-- 命運大轉盤視窗 -->
+        <div id="modal-destiny" class="hidden bg-purple-900 rounded-3xl p-8 max-w-md w-full shadow-[0_0_50px_rgba(168,85,247,0.5)] border-4 border-purple-400 text-center relative overflow-hidden">
+            <button onclick="closeModal()" class="absolute top-4 right-4 w-10 h-10 bg-purple-800 rounded-full flex items-center justify-center text-purple-300 hover:bg-purple-700 font-bold z-20"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="text-3xl font-black text-purple-200 mb-6 tracking-widest drop-shadow-[0_0_10px_rgba(216,180,254,0.8)]">🔮 命運之輪 🔮</h3>
+            <div class="bg-purple-950 rounded-2xl p-6 mb-6 shadow-inner border-4 border-purple-800 relative h-40 flex items-center justify-center">
+                <div id="destiny-display" class="flex flex-col items-center justify-center transition-transform duration-75 w-full"><span class="text-6xl mb-2 animate-pulse-slow">🌀</span><span class="text-xl font-black text-purple-300">未知的命運即將降臨...</span></div>
+            </div>
+            <button id="destiny-btn" onclick="spinDestinyWheel()" class="w-full py-4 rounded-full font-black text-2xl bg-gradient-to-r from-fuchsia-500 to-purple-600 text-white hover:from-fuchsia-400 hover:to-purple-500 shadow-[0_5px_0_#7e22ce] active:translate-y-[5px] transition-all">轉 動 命 運 ！</button>
+        </div>
+
+        <!-- 魔王擊敗視窗 -->
+        <div id="modal-boss-defeat" class="hidden bg-gradient-to-b from-yellow-100 to-orange-100 rounded-3xl p-8 max-w-md w-full shadow-2xl border-4 border-yellow-400 text-center relative">
+            <i class="fa-solid fa-medal text-6xl text-yellow-500 mb-4 animate-bounce"></i>
+            <h3 class="text-3xl font-black text-orange-600 mb-2">討伐成功！</h3>
+            <p class="text-xl font-bold text-slate-700 mb-6">全班成功擊敗了魔王！</p>
+            <p id="boss-defeat-reward-text" class="text-lg font-black text-red-500 mb-6 bg-red-100 p-2 rounded-xl border border-red-200"></p>
+            <p class="text-sm text-slate-500 mb-6">魔王暫時被消滅了，請至「魔王設定」喚醒下一隻魔王！</p>
+            <button onclick="closeModal()" class="px-8 py-3 rounded-full font-black bg-orange-500 text-white hover:bg-orange-600 shadow-lg card-pop text-lg w-full">繼續冒險</button>
+        </div>
+
+        <!-- 專注模式設定 -->
+        <div id="modal-focus-setup" class="hidden bg-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border-4 border-indigo-500 text-center relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 w-10 h-10 bg-slate-700 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-600 font-bold"><i class="fa-solid fa-xmark"></i></button>
+            <i class="fa-solid fa-moon text-6xl text-yellow-200 mb-4 animate-pulse-slow"></i>
+            <h3 class="text-3xl font-black text-indigo-300 mb-2">專注時光</h3>
+            <p class="text-slate-400 font-bold mb-6">畫面將變暗，並播放令人放鬆的「下雨白噪音」。</p>
+            <div class="grid grid-cols-3 gap-3 mb-6">
+                <button onclick="startFocusMode(300)" class="py-4 rounded-2xl bg-slate-700 text-indigo-300 hover:bg-slate-600 font-black text-xl border-2 border-slate-600 card-pop">5 分</button>
+                <button onclick="startFocusMode(600)" class="py-4 rounded-2xl bg-slate-700 text-indigo-300 hover:bg-slate-600 font-black text-xl border-2 border-slate-600 card-pop">10 分</button>
+                <button onclick="startFocusMode(900)" class="py-4 rounded-2xl bg-slate-700 text-indigo-300 hover:bg-slate-600 font-black text-xl border-2 border-slate-600 card-pop">15 分</button>
+            </div>
+            <button onclick="closeModal()" class="w-full py-3 rounded-xl font-bold bg-slate-700 text-slate-300 hover:bg-slate-600">取消</button>
+        </div>
+
+        <!-- 圖鑑視窗 (增加滾動條) -->
+        <div id="modal-pokedex" class="hidden bg-slate-800 rounded-3xl p-6 sm:p-8 max-w-4xl w-full shadow-2xl border-4 border-slate-600 text-center relative max-h-[85vh] overflow-hidden flex flex-col">
+            <button onclick="closeModal()" class="absolute top-4 right-4 w-10 h-10 bg-slate-700 rounded-full flex items-center justify-center text-slate-300 hover:bg-slate-600 font-bold z-20 shadow-md"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="text-3xl font-black text-white mb-2 tracking-widest shrink-0 mt-2">🌌 星際神獸圖鑑 🌌</h3>
+            <p class="text-slate-400 font-bold mb-4 shrink-0">將寵物養至「50分神話態」即可永久解鎖圖鑑！</p>
+            
+            <div id="pokedex-grid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 sm:gap-4 overflow-y-auto custom-scrollbar p-2 pb-6 flex-1">
+                <!-- 圖鑑由 JS 生成 -->
+            </div>
+        </div>
+
+        <!-- 狂熱時間設定 -->
+        <div id="modal-fever-setup" class="hidden bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border-4 border-orange-300 text-center relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 font-bold"><i class="fa-solid fa-xmark"></i></button>
+            <i class="fa-solid fa-fire-flame-curved text-6xl text-orange-500 mb-4 animate-pulse"></i>
+            <h3 class="text-3xl font-black text-orange-600 mb-2">狂熱雙倍時間</h3>
+            <p class="text-slate-600 font-bold mb-6">啟動後，所有小組加分<span class="text-red-500 text-xl mx-1">X 2 倍</span>！</p>
+            <div class="grid grid-cols-3 gap-3 mb-6">
+                <button onclick="startFeverTime(60)" class="py-4 rounded-2xl bg-orange-100 text-orange-700 hover:bg-orange-200 font-black text-xl border-2 border-orange-200 card-pop">1 分鐘</button>
+                <button onclick="startFeverTime(180)" class="py-4 rounded-2xl bg-orange-100 text-orange-700 hover:bg-orange-200 font-black text-xl border-2 border-orange-200 card-pop">3 分鐘</button>
+                <button onclick="startFeverTime(300)" class="py-4 rounded-2xl bg-orange-100 text-orange-700 hover:bg-orange-200 font-black text-xl border-2 border-orange-200 card-pop">5 分鐘</button>
+            </div>
+            <button onclick="closeModal()" class="w-full py-3 rounded-xl font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">取消</button>
+        </div>
+
+        <!-- 幸運抽籤機 -->
+        <div id="modal-roulette" class="hidden bg-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border-8 border-yellow-400 text-center relative overflow-hidden">
+            <button onclick="closeModal()" class="absolute top-4 right-4 w-10 h-10 bg-slate-700 rounded-full flex items-center justify-center text-slate-300 hover:bg-slate-600 font-bold z-20"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="text-3xl font-black text-yellow-400 mb-6 tracking-widest drop-shadow-[0_0_10px_rgba(250,204,21,0.5)]">✨ 命運抽籤機 ✨</h3>
+            <div class="bg-slate-900 rounded-2xl p-6 mb-6 shadow-inner border-4 border-slate-700 relative">
+                <div class="absolute inset-0 bg-gradient-to-b from-slate-900 via-transparent to-slate-900 z-10 pointer-events-none rounded-2xl"></div>
+                <div id="roulette-display" class="flex flex-col items-center justify-center h-32 transition-transform duration-75"><span class="text-6xl mb-2">❓</span><span class="text-2xl font-black text-white">準備就緒</span></div>
+            </div>
+            <button id="roulette-btn" onclick="startRoulette()" class="w-full py-4 rounded-full font-black text-2xl bg-gradient-to-b from-yellow-300 to-amber-500 text-amber-900 hover:from-yellow-400 hover:to-amber-600 shadow-[0_5px_0_#b45309] active:translate-y-[5px] transition-all">開 始 抽 籤 ！</button>
+        </div>
+
+        <!-- 每日任務 -->
+        <div id="modal-quest" class="hidden bg-[#fdf6e3] rounded-3xl p-8 max-w-md w-full shadow-2xl border-[8px] border-double border-amber-800 text-center relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 w-10 h-10 bg-amber-200 rounded-full flex items-center justify-center text-amber-800 hover:bg-amber-300 font-bold"><i class="fa-solid fa-xmark"></i></button>
+            <i class="fa-solid fa-scroll text-6xl text-amber-600 mb-4 animate-bounce"></i>
+            <h3 class="text-3xl font-black text-amber-900 mb-6 border-b-2 border-amber-300 pb-4">📜 今日突發任務 📜</h3>
+            <p id="quest-content" class="text-2xl font-bold text-amber-800 leading-relaxed mb-8"></p>
+            <button onclick="closeModal()" class="px-8 py-3 rounded-full font-black bg-amber-700 text-amber-50 hover:bg-amber-800 shadow-lg card-pop text-lg w-full">接受挑戰！</button>
+        </div>
+
+        <!-- 每週結算 -->
+        <div id="modal-settlement" class="hidden bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border-4 border-indigo-200 text-center relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 font-bold"><i class="fa-solid fa-xmark"></i></button>
+            <i class="fa-solid fa-crown text-6xl text-yellow-500 mb-4 animate-bounce"></i>
+            <h3 class="text-3xl font-black text-indigo-800 mb-2">🎊 本週結算典禮 🎊</h3>
+            <div id="settlement-content" class="my-6 max-h-[40vh] overflow-y-auto"></div>
+            <div class="bg-red-50 text-red-600 text-sm font-bold p-3 rounded-xl mb-4 border border-red-100">⚠️ 結算後，小組分數會歸零，魔王血量重置！<br>圖鑑與累積的獎盃則會永久保留。</div>
+            <div class="flex gap-4">
+                <button onclick="closeModal()" class="flex-1 py-3 rounded-xl font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">取消</button>
+                <button onclick="executeSettlement()" class="flex-1 py-3 rounded-xl font-bold bg-indigo-500 text-white hover:bg-indigo-600 shadow-lg shadow-indigo-200 card-pop">確認結算並歸零</button>
+            </div>
+        </div>
+        
+        <!-- 新學期重置 -->
+        <div id="modal-factory-reset" class="hidden bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border-4 border-rose-200 text-center relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 font-bold"><i class="fa-solid fa-xmark"></i></button>
+            <i class="fa-solid fa-rotate-right text-6xl text-rose-500 mb-4 animate-spin-slow"></i>
+            <h3 class="text-3xl font-black text-rose-700 mb-2">新學期重置</h3>
+            <div class="bg-rose-50 text-rose-600 text-base font-bold p-5 rounded-xl mb-6 border border-rose-200 text-left leading-relaxed">
+                ⚠️ 注意：這將會清除以下資料，適合新學期或換班級使用：<br>
+                1. 🗑️ 所有小組的分數與設定<br>
+                2. 🏆 辛苦累積的榮譽獎盃<br>
+                3. 👾 魔王討伐進度<br>
+                <div class="bg-green-100 text-green-700 p-2 rounded-lg text-center border border-green-300 mt-2">✅ 放心，已解鎖的神獸圖鑑會永久保留！</div>
+            </div>
+            <div class="flex gap-4">
+                <button onclick="closeModal()" class="flex-1 py-3 rounded-xl font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">取消</button>
+                <button onclick="executeFactoryReset()" class="flex-1 py-3 rounded-xl font-bold bg-rose-500 text-white hover:bg-rose-600 shadow-lg shadow-rose-200 card-pop">確認重置</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- === 主要邏輯 Script === -->
+    <script>
+        const CUTE_COLORS = [
+            { bg: 'bg-pink-50', border: 'border-pink-300', text: 'text-pink-700', btnGood: 'bg-pink-400 hover:bg-pink-500' },
+            { bg: 'bg-blue-50', border: 'border-blue-300', text: 'text-blue-700', btnGood: 'bg-blue-400 hover:bg-blue-500' },
+            { bg: 'bg-green-50', border: 'border-green-300', text: 'text-green-700', btnGood: 'bg-green-400 hover:bg-green-500' },
+            { bg: 'bg-yellow-50', border: 'border-yellow-300', text: 'text-yellow-700', btnGood: 'bg-yellow-400 hover:bg-yellow-500' },
+            { bg: 'bg-purple-50', border: 'border-purple-300', text: 'text-purple-700', btnGood: 'bg-purple-400 hover:bg-purple-500' },
+            { bg: 'bg-orange-50', border: 'border-orange-300', text: 'text-orange-700', btnGood: 'bg-orange-400 hover:bg-orange-500' },
+        ];
+        const CUTE_EMOJIS = ['🐰', '🐧', '🐻', '🐯', '🐼', '🦊', '🐱', '🐶', '🐹', '🐸', '🐨', '🐵', '🦉', '🦄'];
+        
+        // 🌟 擴充至 24 種寵物系譜 🌟
+        const PET_FAMILIES = [
+            { id: 0, name: '飛龍', stages: ['🥚', '🐣', '🦎', '🦖', '🐲', '🐉', '☄️', '🌌'], title: '創世星辰龍' },
+            { id: 1, name: '百獸', stages: ['🧶', '🐾', '🐈', '🐱', '🐅', '🐯', '🦁', '👑'], title: '萬獸大帝' },
+            { id: 2, name: '精靈', stages: ['🥚', '🐛', '🐌', '🦋', '🧚‍♀️', '🧚‍♂️', '✨', '🌈'], title: '彩虹大精靈' },
+            { id: 3, name: '神木', stages: ['🌰', '🌱', '🌿', '🪴', '🌳', '🌲', '🍎', '🌍'], title: '世界之樹' },
+            { id: 4, name: '海洋', stages: ['🫧', '🧊', '🐠', '🐟', '🐬', '🦈', '🐳', '🌊'], title: '深海波塞頓' },
+            { id: 5, name: '星空', stages: ['☁️', '🌧️', '🌩️', '🌙', '⭐', '🌟', '💫', '☀️'], title: '宇宙創造者' },
+            { id: 6, name: '機械', stages: ['🔩', '⚙️', '🔋', '📻', '🕹️', '🚀', '🛸', '🤖'], title: '未來機甲神' },
+            { id: 7, name: '甜點', stages: ['🍬', '🍭', '🍫', '🍩', '🧁', '🍰', '🎂', '🏰'], title: '糖果城堡之王' },
+            { id: 8, name: '恐龍', stages: ['🦴', '🥚', '🐾', '🦕', '🦖', '🌋', '🔥', '☄️'], title: '侏羅紀霸主' },
+            { id: 9, name: '飛禽', stages: ['🪶', '🥚', '🐤', '🦉', '🦅', '🦢', '🦚', '🕊️'], title: '天空神聖使者' },
+            { id: 10, name: '幽冥', stages: ['🕯️', '🧿', '🕸️', '🕷️', '🎃', '🦇', '🧛', '👻'], title: '暗影幽靈王' },
+            { id: 11, name: '幻樂', stages: ['🎵', '🎶', '🎺', '🎸', '🎹', '🎻', '🎧', '🎸'], title: '靈魂交響樂章' },
+            
+            // 全新擴充的 12 種神獸！
+            { id: 12, name: '冰雪', stages: ['❄️', '🧊', '🍧', '⛄', '🐧', '🦭', '🐻‍❄️', '🏔️'], title: '極地冰霜領主' },
+            { id: 13, name: '烈焰', stages: ['🪵', '♨️', '🧨', '🎇', '💥', '🔥', '☄️', '🌋'], title: '煉獄熔岩巨獸' },
+            { id: 14, name: '寶石', stages: ['🪨', '⛏️', '🪙', '💍', '💎', '🔮', '👑', '✨'], title: '璀璨光芒星鑽' },
+            { id: 15, name: '昆蟲', stages: ['🪱', '🐛', '🐜', '🪲', '🐞', '🦗', '🐝', '🦂'], title: '叢林甲蟲霸王' },
+            { id: 16, name: '魔法', stages: ['📜', '🕯️', '🧪', '🔮', '🪄', '🧙', '🧝', '🧞'], title: '大魔法神導師' },
+            { id: 17, name: '武士', stages: ['🪵', '🗡️', '🏹', '🛡️', '⚔️', '🥋', '🥷', '🦸'], title: '傳說神話勇者' },
+            { id: 18, name: '極速', stages: ['🛞', '🛴', '🚲', '🛵', '🚗', '🚓', '🏎️', '🚀'], title: '光速極限飆車手' },
+            { id: 19, name: '氣象', stages: ['☁️', '⛅', '🌤️', '☀️', '🌩️', '⛈️', '🌪️', '🌈'], title: '呼風喚雨天神' },
+            { id: 20, name: '運動', stages: ['🏓', '🏸', '🎾', '🏐', '🏀', '⚽', '⚾', '🏆'], title: '奧林匹克冠軍' },
+            { id: 21, name: '節慶', stages: ['🎈', '🎏', '🎀', '🎁', '🎊', '🎉', '🎎', '🎇'], title: '歡樂派對之王' },
+            { id: 22, name: '學霸', stages: ['✏️', '✒️', '🖋️', '🖌️', '🖍️', '📝', '📖', '🎓'], title: '宇宙無敵學霸' },
+            { id: 23, name: '農場', stages: ['🧅', '🧄', '🥕', '🥔', '🥦', '🥬', '🍅', '🥗'], title: '豐收農場大亨' }
+        ];
+
+        const LEVEL_THRESHOLDS = [0, 5, 10, 15, 20, 30, 40, 50]; 
+        const STAGE_NAMES = ['未孵化', '幼兒期', '成長期', '成熟期', '完全體', '究極體', '覺醒態', '神話態'];
+
+        const BOSS_LIST = [
+            { name: '愛講話大魔王', emoji: '🗣️' }, { name: '瞌睡蟲怪獸', emoji: '💤' }, { name: '忘記作業妖怪', emoji: '📝' },
+            { name: '遲到大王', emoji: '⏰' }, { name: '吵架噴火龍', emoji: '🌋' }, { name: '分心幽靈', emoji: '👻' }
+        ];
+
+        const GOOD_BEHAVIORS = [
+            { label: '抽屜整潔', score: 4, color: 'bg-emerald-500 hover:bg-emerald-600' },
+            { label: '舉手發言', score: 1, color: 'bg-teal-500 hover:bg-teal-600' },
+            { label: '桌上清空', score: 1, color: 'bg-blue-500 hover:bg-blue-600' },
+            { label: '椅子靠攏', score: 1, color: 'bg-indigo-500 hover:bg-indigo-600' },
+            { label: '整組準時', score: 1, color: 'bg-cyan-500 hover:bg-cyan-600' },
+            { label: '排隊安靜', score: 1, color: 'bg-sky-500 hover:bg-sky-600' }
+        ];
+        const BAD_BEHAVIORS = [
+            { label: '分心', score: -2, color: 'bg-orange-500 hover:bg-orange-600' },
+            { label: '吵鬧', score: -3, color: 'bg-red-500 hover:bg-red-600' },
+            { label: '爭吵', score: -5, color: 'bg-rose-600 hover:bg-rose-700' }
+        ];
+
+        const QUEST_POOL = ['【安靜忍者】接下來 10 分鐘內，全班維持最高品質靜悄悄。','【桌面發亮】下課前，全班桌面淨空不留任何文具書本。','【神速排隊】聽到指令後，30秒內全班排好隊伍。','【坐姿端正】這節課所有人背挺直，不趴桌子。','【熱情參與】這節課舉手發言總次數超過 10 次！'];
+        const PET_QUOTES = ['好想進化喔！✨', '給我護盾！🛡️', '肚子好餓😋', '今天大家都很棒！', '打倒魔王吧！⚔️', '有機會觸發暴擊喔！🔥'];
+        const DESTINY_EVENTS = [
+            { text: '👼 天使降臨！全班各加 2 分', action: () => addAllScore(2) },
+            { text: '👾 魔王狂暴！魔王回復 30 HP', action: () => healBoss(30) },
+            { text: '🛡️ 神聖守護！全班獲得 1 面護盾', action: () => addAllShields(1) },
+            { text: '🔥 驚喜狂熱！自動開啟 1 分鐘雙倍時間', action: () => setTimeout(() => startFeverTime(60), 2000) },
+            { text: '🎁 幸運抽籤！馬上抽出幸運小組', action: () => setTimeout(() => { openModal('roulette'); document.getElementById('roulette-btn').click(); }, 2000) }
+        ];
+
+        // 🌟 保持這把舊鑰匙，讓老師保留之前解鎖的圖鑑！ 🌟
+        const STORAGE_KEY = 'class_star_save_data_v11'; 
+        
+        function getInitialState() {
+            return {
+                boss: { currentIdx: 0, maxHp: 100, hp: 100, damageMultiplier: 1, defeatReward: 5 }, 
+                unlockedPets: [], 
+                groups: Array.from({length: 6}, (_, i) => ({
+                    id: i + 1, name: `第${['一','二','三','四','五','六'][i]}組`, 
+                    icon: ['🐧','🐰','🦁','🐱','🐼','🐶'][i], 
+                    score: 0, shields: 0, trophies: 0, 
+                    themeIndex: [1,0,3,5,2,4][i], petFamilyId: i
+                }))
+            };
+        }
+
+        let appState = getInitialState();
+        let isEditing = false;
+        let soundEnabled = true;
+        let animatingScores = {};
+        let levelUpGroups = {};
+        let petBubbles = {};
+        
+        let feverTimeLeft = 0; let feverInterval = null;
+        let focusTimeLeft = 0; let focusInterval = null;
+        let noiseSource = null;
+        let tempBossIdx = 0;
+
+        function loadFromLocal() {
+            try {
+                const savedData = localStorage.getItem(STORAGE_KEY);
+                if (savedData) {
+                    const parsedData = JSON.parse(savedData);
+                    appState = {
+                        boss: {
+                            currentIdx: parsedData.boss?.currentIdx || 0,
+                            maxHp: parsedData.boss?.maxHp || 100,
+                            hp: parsedData.boss?.hp ?? 100,
+                            damageMultiplier: parsedData.boss?.damageMultiplier || 1, 
+                            defeatReward: parsedData.boss?.defeatReward || 0         
+                        },
+                        unlockedPets: parsedData.unlockedPets || [],
+                        groups: parsedData.groups ? parsedData.groups.map(g => ({...g, shields: g.shields || 0, trophies: g.trophies || 0})) : getInitialState().groups
+                    };
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function saveToLocal() {
+            try {
+                const statusDiv = document.getElementById('sync-status');
+                if (statusDiv) {
+                    statusDiv.innerHTML = '<i class="fa-solid fa-hard-drive text-blue-500 mr-1 animate-pulse"></i><span class="text-slate-500 hidden sm:inline">儲存中</span>';
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+                    setTimeout(() => { statusDiv.innerHTML = '<i class="fa-solid fa-check text-green-500 mr-1"></i><span class="text-slate-500 hidden sm:inline">已儲存</span>'; }, 300); 
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        loadFromLocal();
+
+        // === 音效引擎 ===
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playTone(freq, type, duration, vol = 0.1) {
+            if (!soundEnabled) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function createWhiteNoise() {
+            const bufferSize = audioCtx.sampleRate * 2;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const output = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) { output[i] = Math.random() * 2 - 1; }
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer; noise.loop = true;
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass'; filter.frequency.value = 400;
+            const gain = audioCtx.createGain(); gain.gain.value = 0.05;
+            noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+            return noise;
+        }
+
+        window.playSFX = function(type) {
+            if (!soundEnabled) return;
+            if(type==='good') { playTone(600, 'sine', 0.1); setTimeout(() => playTone(800, 'sine', 0.15), 100); }
+            else if(type==='bad') { playTone(300, 'sawtooth', 0.3, 0.1); setTimeout(() => playTone(250, 'sawtooth', 0.4, 0.1), 150); }
+            else if(type==='crit') { [800, 1200, 1600].forEach((f, i) => setTimeout(() => playTone(f, 'square', 0.1, 0.2), i * 80)); }
+            else if(type==='hit') { playTone(150, 'square', 0.2, 0.2); }
+            else if(type==='levelup') { [400, 500, 600, 800, 1000].forEach((f, i) => setTimeout(() => playTone(f, 'square', 0.1), i * 100)); }
+            else if(type==='tada') { [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => setTimeout(() => playTone(f, 'sine', 0.2), i * 150)); setTimeout(() => playTone(1046.50, 'sine', 0.6), 600); }
+            else if(type==='wipe') { playTone(200, 'sawtooth', 0.5, 0.2); setTimeout(() => playTone(150, 'sawtooth', 0.8, 0.2), 300); }
+            else if(type==='correct') { [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => setTimeout(() => playTone(f, 'sine', 0.1, 0.15), i * 100)); }
+            else if(type==='wrong') { playTone(200, 'sawtooth', 0.4, 0.15); setTimeout(() => playTone(150, 'sawtooth', 0.6, 0.15), 200); }
+            else if(type==='drumroll') { 
+                for(let i=0; i<30; i++) setTimeout(() => playTone(100 + Math.random()*50, 'square', 0.05, 0.2), i * 50); 
+                setTimeout(() => playTone(300, 'sine', 0.5, 0.3), 1500); 
+            }
+            else if(type==='tick') { playTone(800, 'triangle', 0.05, 0.05); }
+            else if(type==='alarm') { 
+                for(let i=0; i<6; i++) {
+                    setTimeout(() => playTone(800, 'square', 0.2, 0.2), i * 400);
+                    setTimeout(() => playTone(1000, 'square', 0.2, 0.2), i * 400 + 200);
+                }
+            }
+            else if(type==='shatter') { 
+                for(let i=0; i<10; i++) setTimeout(() => playTone(1000 + Math.random()*2000, 'sawtooth', 0.05, 0.1), i * 30);
+            }
+            else if(type==='heal') {
+                [600, 800, 1000, 1200].forEach((f, i) => setTimeout(() => playTone(f, 'sine', 0.1, 0.1), i * 80));
+            }
+        }
+
+        window.toggleSound = function() {
+            soundEnabled = !soundEnabled;
+            const icon = document.getElementById('sound-icon');
+            if(soundEnabled) { icon.className = 'fa-solid fa-volume-high'; icon.parentElement.classList.remove('text-red-500', 'bg-red-100'); icon.parentElement.classList.add('text-slate-500'); } 
+            else { icon.className = 'fa-solid fa-volume-xmark text-red-500'; icon.parentElement.classList.add('text-red-400', 'bg-red-100'); icon.parentElement.classList.remove('text-slate-500'); }
+        }
+
+        // === 專注時光 ===
+        window.startFocusMode = function(seconds) {
+            closeModal();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            focusTimeLeft = seconds;
+            document.body.classList.add('focus-mode');
+            document.getElementById('focus-timer-display').classList.remove('hidden');
+            if (soundEnabled && !noiseSource) { noiseSource = createWhiteNoise(); noiseSource.start(); }
+            if(focusInterval) clearInterval(focusInterval);
+            updateFocusDisplay();
+            focusInterval = setInterval(() => { focusTimeLeft--; updateFocusDisplay(); if(focusTimeLeft <= 0) endFocusMode(); }, 1000);
+        }
+        function updateFocusDisplay() {
+            const m = Math.floor(focusTimeLeft / 60).toString().padStart(2, '0');
+            const s = (focusTimeLeft % 60).toString().padStart(2, '0');
+            document.getElementById('focus-time-text').innerText = `${m}:${s}`;
+        }
+        window.endFocusMode = function() {
+            clearInterval(focusInterval); document.body.classList.remove('focus-mode');
+            document.getElementById('focus-timer-display').classList.add('hidden');
+            if (noiseSource) { noiseSource.stop(); noiseSource = null; }
+            playSFX('tada');
+        }
+
+        // === 狂熱時間 ===
+        window.startFeverTime = function(seconds) {
+            closeModal(); feverTimeLeft = seconds;
+            document.body.classList.add('fever-mode');
+            document.getElementById('boss-container').classList.add('fever-border');
+            document.getElementById('main-toolbar').classList.add('fever-border');
+            document.getElementById('fever-timer-display').classList.remove('hidden');
+            playSFX('tada'); updateFeverDisplay();
+
+            if(feverInterval) clearInterval(feverInterval);
+            feverInterval = setInterval(() => {
+                feverTimeLeft--; updateFeverDisplay();
+                if(feverTimeLeft <= 0) {
+                    clearInterval(feverInterval); document.body.classList.remove('fever-mode');
+                    document.getElementById('boss-container').classList.remove('fever-border');
+                    document.getElementById('main-toolbar').classList.remove('fever-border');
+                    document.getElementById('fever-timer-display').classList.add('hidden');
+                    playSFX('alarm'); triggerConfetti();
+                } else if (feverTimeLeft <= 10) { playSFX('tick'); }
+            }, 1000);
+        }
+        function updateFeverDisplay() {
+            const m = Math.floor(feverTimeLeft / 60).toString().padStart(2, '0');
+            const s = (feverTimeLeft % 60).toString().padStart(2, '0');
+            document.getElementById('fever-time-text').innerText = `${m}:${s}`;
+        }
+
+        // === 命運大轉盤 ===
+        window.openDestinyWheel = function() {
+            document.getElementById('destiny-display').innerHTML = `<span class="text-6xl mb-2 animate-pulse-slow">🌀</span><span class="text-xl font-black text-purple-300">未知的命運即將降臨...</span>`;
+            document.getElementById('destiny-btn').disabled = false; document.getElementById('destiny-btn').innerText = '轉 動 命 運 ！'; document.getElementById('destiny-btn').classList.remove('opacity-50', 'cursor-not-allowed');
+            openModal('destiny');
+        }
+
+        window.spinDestinyWheel = function() {
+            const btn = document.getElementById('destiny-btn'); const display = document.getElementById('destiny-display');
+            if(btn.disabled) return;
+            btn.disabled = true; btn.innerText = '命 運 交 織 中 ...'; btn.classList.add('opacity-50', 'cursor-not-allowed');
+
+            let ticks = 0;
+            function tick() {
+                const randomEvent = DESTINY_EVENTS[Math.floor(Math.random() * DESTINY_EVENTS.length)];
+                display.innerHTML = `<span class="text-3xl font-black text-white px-4">${randomEvent.text}</span>`;
+                playSFX('tick'); ticks++;
+                if (ticks < 20) { setTimeout(tick, 100 + (ticks * 10)); } 
+                else {
+                    playSFX('tada');
+                    display.innerHTML = `<span class="text-3xl font-black text-yellow-300 drop-shadow px-4 animate-bounce">${randomEvent.text}</span>`;
+                    randomEvent.action();
+                    saveToLocal(); renderApp();
+                }
+            }
+            tick();
+        }
+
+        function addAllScore(val) { 
+            appState.groups.forEach(g => { 
+                const oldLevel = getPetLevel(g.score);
+                g.score = Math.max(0, g.score + val); 
+                const newLevel = getPetLevel(g.score);
+                if (newLevel > oldLevel && newLevel === LEVEL_THRESHOLDS.length - 1) {
+                    if (!appState.unlockedPets.includes(g.petFamilyId)) appState.unlockedPets.push(g.petFamilyId);
+                }
+            }); 
+            triggerConfetti();
+        }
+        function addAllShields(val) { appState.groups.forEach(g => { g.shields += val; }); triggerConfetti(); }
+        function healBoss(val) { 
+            if(appState.boss.hp > 0 && appState.boss.hp < appState.boss.maxHp) {
+                appState.boss.hp = Math.min(appState.boss.maxHp, appState.boss.hp + val); 
+                playSFX('heal');
+            }
+        }
+
+        // === 幸運抽籤機 ===
+        window.startRoulette = function() {
+            const btn = document.getElementById('roulette-btn'); const display = document.getElementById('roulette-display');
+            if(btn.disabled) return;
+            btn.disabled = true; btn.innerText = '抽 籤 中 ...'; btn.classList.add('opacity-50', 'cursor-not-allowed');
+
+            let speed = 50; let ticks = 0; const maxTicks = 40 + Math.floor(Math.random() * 20); 
+
+            function tick() {
+                const randomGroup = appState.groups[Math.floor(Math.random() * appState.groups.length)];
+                display.innerHTML = `<span class="text-6xl mb-2 drop-shadow-lg">${randomGroup.icon}</span><span class="text-3xl font-black text-yellow-300 drop-shadow">${randomGroup.name}</span>`;
+                playSFX('tick'); ticks++;
+                if (ticks < maxTicks) { speed += 5; setTimeout(tick, speed); } 
+                else {
+                    playSFX('tada');
+                    display.innerHTML = `<span class="text-7xl mb-2 drop-shadow-[0_0_15px_rgba(250,204,21,0.8)] animate-bounce">${randomGroup.icon}</span><span class="text-4xl font-black text-white bg-red-500 px-4 py-1 rounded-xl shadow-lg">${randomGroup.name}</span>`;
+                    triggerConfetti();
+                    setTimeout(() => { btn.disabled = false; btn.innerText = '再 抽 一 次 ！'; btn.classList.remove('opacity-50', 'cursor-not-allowed'); }, 2000);
+                }
+            }
+            tick();
+        }
+
+        // === 手動增減獎盃功能 ===
+        window.addTrophy = function(id) {
+            if(!isEditing) return;
+            appState.groups = appState.groups.map(g => g.id === id ? { ...g, trophies: g.trophies + 1 } : g);
+            playSFX('correct'); saveToLocal(); renderApp();
+        };
+        window.removeTrophy = function(id) {
+            if(!isEditing) return;
+            appState.groups = appState.groups.map(g => g.id === id ? { ...g, trophies: Math.max(0, g.trophies - 1) } : g);
+            playSFX('wrong'); saveToLocal(); renderApp();
+        };
+
+        // === 核心邏輯 ===
+        function getPetLevel(score) { for (let i = LEVEL_THRESHOLDS.length - 1; i >= 0; i--) { if (score >= LEVEL_THRESHOLDS[i]) return i; } return 0; }
+        function getProgress(score) {
+            const level = getPetLevel(score);
+            if (level === LEVEL_THRESHOLDS.length - 1) return { percent: 100, nextReq: 0 }; 
+            const currentBase = LEVEL_THRESHOLDS[level]; const nextGoal = LEVEL_THRESHOLDS[level + 1];
+            return { percent: Math.max(0, Math.min(100, ((score - currentBase) / (nextGoal - currentBase)) * 100)), nextReq: nextGoal };
+        }
+        function getPetStyleClass(level) {
+            switch(level) {
+                case 0: return 'bg-slate-100/50 border-slate-200'; case 1: return 'bg-blue-50 border-blue-200 shadow-sm'; case 2: return 'bg-green-50 border-green-300 shadow-md'; 
+                case 3: return 'bg-purple-50 border-purple-400 shadow-lg'; case 4: return 'bg-gradient-to-br from-indigo-100 to-purple-200 border-indigo-500 shadow-xl'; 
+                case 5: return 'bg-gradient-to-br from-pink-100 to-rose-200 border-rose-500 shadow-2xl'; 
+                case 6: return 'bg-gradient-to-br from-yellow-100 via-amber-200 to-orange-200 border-yellow-500 shadow-[0_0_15px_rgba(251,191,36,0.5)]'; 
+                case 7: return 'bg-gradient-to-br from-yellow-200 via-orange-300 to-red-400 border-yellow-300 shadow-[0_0_30px_rgba(251,191,36,0.8)] animate-pulse-slow'; 
+                default: return 'bg-slate-100 border-slate-200';
+            }
+        }
+        function getPetSizeClass(level) {
+            switch(level) {
+                case 0: return 'text-3xl opacity-80'; case 1: return 'text-4xl'; case 2: return 'text-5xl drop-shadow-sm'; case 3: return 'text-6xl drop-shadow-md';
+                case 4: return 'text-7xl drop-shadow-lg'; case 5: return 'text-[5rem] drop-shadow-xl hover:scale-110 transition-transform';
+                case 6: return 'text-[5.5rem] drop-shadow-2xl animate-bounce-slow'; case 7: return 'text-[6rem] drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] animate-spin-slow'; 
+                default: return 'text-4xl';
+            }
+        }
+
+        function showFloatingText(text, x, y, styleClass, targetElementId = 'floating-effects-layer') {
+            const el = document.createElement('div'); el.className = styleClass; el.innerText = text; el.style.left = `${x}px`; el.style.top = `${y}px`;
+            document.getElementById(targetElementId).appendChild(el); setTimeout(() => el.remove(), 1500);
+        }
+
+        window.updateScore = function(id, baseDelta, event) {
+            if(isEditing) return;
+            let finalDelta = baseDelta;
+            let isSpecialHit = false;
+
+            const groupIndex = appState.groups.findIndex(g => g.id === id);
+            if (groupIndex !== -1 && finalDelta < 0 && appState.groups[groupIndex].shields > 0) {
+                appState.groups[groupIndex].shields -= 1;
+                playSFX('shatter');
+                if (event) { const rect = event.target.getBoundingClientRect(); showFloatingText(`🛡️護盾破裂!`, rect.left, rect.top - 20, 'shield-text'); }
+                finalDelta = 0; 
+                saveToLocal(); renderApp();
+                return;
+            }
+
+            if (feverTimeLeft > 0 && baseDelta > 0) {
+                finalDelta = baseDelta * 2; playSFX('crit');
+                if (event) { const rect = event.target.getBoundingClientRect(); showFloatingText(`🔥狂熱雙倍 +${finalDelta}!`, rect.left, rect.top - 20, 'fever-text'); }
+                isSpecialHit = true;
+            } else if (baseDelta > 0 && Math.random() < 0.15) {
+                finalDelta = baseDelta * 2; playSFX('crit');
+                if (event) { const rect = event.target.getBoundingClientRect(); showFloatingText(`⚡暴擊 +${finalDelta}!`, rect.left, rect.top - 20, 'crit-text'); }
+                isSpecialHit = true;
+            } 
+            
+            if(!isSpecialHit) { if (finalDelta > 0) playSFX('good'); else if(finalDelta < 0) playSFX('bad'); }
+
+            let isMaxLeveledUp = false;
+
+            appState.groups = appState.groups.map(g => {
+                if (g.id === id) {
+                    const oldLevel = getPetLevel(g.score);
+                    const newScore = Math.max(0, g.score + finalDelta);
+                    const newLevel = getPetLevel(newScore);
+                    
+                    if (newLevel > oldLevel) {
+                        playSFX('levelup'); levelUpGroups[id] = true; setTimeout(() => { levelUpGroups[id] = false; renderApp(); }, 1500);
+                        if (newLevel === LEVEL_THRESHOLDS.length - 1) {
+                            isMaxLeveledUp = true;
+                            if (!appState.unlockedPets.includes(g.petFamilyId)) appState.unlockedPets.push(g.petFamilyId);
+                        }
+                    }
+                    return { ...g, score: newScore };
+                }
+                return g;
+            });
+
+            if (finalDelta > 0) {
+                if (appState.boss.hp > 0) {
+                    const multiplier = appState.boss.damageMultiplier || 1;
+                    const bossDmg = finalDelta * multiplier;
+                    appState.boss.hp = Math.max(0, appState.boss.hp - bossDmg);
+                    
+                    const bossEmoji = document.getElementById('boss-emoji');
+                    bossEmoji.classList.remove('boss-hit'); void bossEmoji.offsetWidth; bossEmoji.classList.add('boss-hit');
+                    playSFX('hit');
+                    
+                    if (appState.boss.hp === 0) {
+                        setTimeout(() => {
+                            const reward = appState.boss.defeatReward || 0;
+                            if(reward > 0) {
+                                appState.groups.forEach(g => { 
+                                    const oLv = getPetLevel(g.score); g.score += reward; const nLv = getPetLevel(g.score);
+                                    if(nLv > oLv && nLv === LEVEL_THRESHOLDS.length - 1) {
+                                        if (!appState.unlockedPets.includes(g.petFamilyId)) appState.unlockedPets.push(g.petFamilyId);
+                                    }
+                                });
+                            }
+                            document.getElementById('boss-defeat-reward-text').innerText = reward > 0 ? `恭喜全班獲得 ${reward} 分獎勵！` : '請老師給予全班約定的獎勵！';
+                            openModal('boss-defeat'); triggerConfetti();
+                            saveToLocal(); renderApp();
+                        }, 500);
+                    }
+                }
+            } else if (finalDelta < 0) {
+                if (appState.boss.hp > 0 && appState.boss.hp < appState.boss.maxHp) {
+                    const healAmount = Math.max(1, Math.ceil(Math.abs(finalDelta) * 0.5));
+                    appState.boss.hp = Math.min(appState.boss.maxHp, appState.boss.hp + healAmount);
+                    playSFX('heal');
+                    showFloatingText(`+${healAmount}`, 50, 0, 'heal-text', 'boss-heal-effect');
+                }
+            }
+
+            animatingScores[id] = true; setTimeout(() => { animatingScores[id] = false; renderApp(); }, 300);
+            saveToLocal(); renderApp(); if(isMaxLeveledUp) triggerConfetti();
+        };
+
+        window.addShield = function(id, event) {
+            if(isEditing) return;
+            appState.groups = appState.groups.map(g => g.id === id ? { ...g, shields: g.shields + 1 } : g);
+            playSFX('correct');
+            if(event) { const rect = event.target.getBoundingClientRect(); showFloatingText(`🛡️+1`, rect.left, rect.top - 20, 'text-blue-500 absolute font-black text-2xl z-50 animate-[floatUpFade_1s_forwards]'); }
+            saveToLocal(); renderApp();
+        }
+
+        window.toggleEditMode = function() {
+            isEditing = !isEditing; const btn = document.getElementById('edit-btn');
+            if(isEditing) { btn.className = "flex items-center gap-2 px-3 py-2 rounded-xl font-bold bg-green-500 text-white shadow-md transition-all card-pop"; btn.innerHTML = '<i class="fa-solid fa-check"></i><span class="hidden xl:inline">完成</span>'; } 
+            else { btn.className = "flex items-center gap-2 px-3 py-2 rounded-xl font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all card-pop"; btn.innerHTML = '<i class="fa-solid fa-gear"></i><span class="hidden xl:inline">設定</span>'; saveToLocal(); }
+            renderApp();
+        };
+        window.updateGroupName = function(id, value) { appState.groups = appState.groups.map(g => g.id === id ? { ...g, name: value } : g); };
+        window.updateGroupIcon = function(id) { if(!isEditing) return; appState.groups = appState.groups.map(g => { if(g.id === id) { const idx = CUTE_EMOJIS.indexOf(g.icon); return { ...g, icon: CUTE_EMOJIS[(idx + 1) % CUTE_EMOJIS.length] }; } return g; }); renderApp(); };
+        window.changePetFamily = function(id) { if(!isEditing) return; appState.groups = appState.groups.map(g => { if(g.id === id) return { ...g, petFamilyId: (g.petFamilyId + 1) % PET_FAMILIES.length }; return g; }); renderApp(); };
+        
+        window.saveBossSetup = function() {
+            const hp = parseInt(document.getElementById('setup-boss-hp').value) || 100;
+            const mult = parseInt(document.getElementById('setup-boss-mult').value) || 1;
+            const reward = parseInt(document.getElementById('setup-boss-reward').value) || 0;
+            
+            if (appState.boss.maxHp !== hp) { appState.boss.hp = hp; }
+            
+            appState.boss.currentIdx = tempBossIdx; 
+            appState.boss.maxHp = hp; appState.boss.damageMultiplier = mult; appState.boss.defeatReward = reward;
+            if(appState.boss.hp > hp) appState.boss.hp = hp; 
+            
+            saveToLocal(); renderApp(); closeModal(); playSFX('correct');
+        };
+
+        window.healBossFull = function() {
+            appState.boss.hp = appState.boss.maxHp;
+            saveToLocal(); renderApp(); closeModal(); playSFX('heal');
+        }
+
+        window.prevBoss = function() { tempBossIdx = (tempBossIdx - 1 + BOSS_LIST.length) % BOSS_LIST.length; renderBossPreview(); }
+        window.nextBoss = function() { tempBossIdx = (tempBossIdx + 1) % BOSS_LIST.length; renderBossPreview(); }
+        function renderBossPreview() {
+            const b = BOSS_LIST[tempBossIdx];
+            document.getElementById('setup-boss-preview').innerHTML = `<span class="text-2xl">${b.emoji}</span><span>${b.name}</span>`;
+        }
+
+        setInterval(() => {
+            if (isEditing) return;
+            const randomGroup = appState.groups[Math.floor(Math.random() * appState.groups.length)];
+            petBubbles[randomGroup.id] = PET_QUOTES[Math.floor(Math.random() * PET_QUOTES.length)]; renderApp();
+            setTimeout(() => { delete petBubbles[randomGroup.id]; renderApp(); }, 5000);
+        }, 15000);
+
+        function renderApp() {
+            const currentBoss = BOSS_LIST[appState.boss.currentIdx];
+            document.getElementById('boss-name').innerText = currentBoss.name; document.getElementById('boss-emoji').innerText = currentBoss.emoji;
+            document.getElementById('boss-maxhp-display').innerText = appState.boss.maxHp; document.getElementById('boss-hp-display').innerText = appState.boss.hp;
+            
+            const hpPercent = Math.max(0, (appState.boss.hp / appState.boss.maxHp) * 100);
+            document.getElementById('boss-hp-bar').style.width = hpPercent + '%';
+            
+            const mult = appState.boss.damageMultiplier || 1; document.getElementById('boss-dmg-hint').innerText = mult > 1 ? `(攻擊倍率 x${mult})` : '';
+
+            if (appState.boss.hp <= 0) { document.getElementById('boss-dead-overlay').classList.remove('hidden'); } 
+            else { document.getElementById('boss-dead-overlay').classList.add('hidden'); }
+
+            const container = document.getElementById('groups-container');
+            const maxScore = Math.max(...appState.groups.map(g => g.score), 0);
+            
+            let html = '';
+            appState.groups.forEach(group => {
+                const petLevel = getPetLevel(group.score); const progress = getProgress(group.score);
+                const family = PET_FAMILIES[group.petFamilyId]; const theme = CUTE_COLORS[group.themeIndex];
+                const isMaxLevel = petLevel === LEVEL_THRESHOLDS.length - 1;
+                const isWinner = group.score === maxScore && maxScore > 0 && !isEditing;
+                const isAnimating = animatingScores[group.id];
+                const isLevelingUp = levelUpGroups[group.id];
+
+                html += `
+                <div class="glass-panel relative flex flex-col p-4 rounded-3xl border-4 shadow-md transition-all duration-300 ${theme.bg} ${theme.border} ${isEditing ? 'animate-pulse' : ''} ${feverTimeLeft > 0 ? 'border-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.5)]' : ''}">
+                    ${isWinner ? `<div class="absolute -top-5 left-1/2 transform -translate-x-1/2 text-yellow-500 drop-shadow-md animate-bounce z-10"><i class="fa-solid fa-award text-4xl"></i></div>` : ''}
+
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2">
+                            <div class="text-3xl cursor-pointer ${isEditing ? 'hover:scale-110 hover:rotate-12 transition-transform' : ''}" onclick="updateGroupIcon(${group.id})">${group.icon}</div>
+                            <div class="flex flex-col">
+                                ${isEditing ? `<input type="text" value="${group.name}" onchange="updateGroupName(${group.id}, this.value)" class="text-xl font-bold bg-white/50 border-b-2 border-dashed border-slate-400 focus:outline-none w-20 px-1"/>` : `<h2 class="text-xl font-black leading-tight ${theme.text}">${group.name}</h2>`}
+                                <div class="flex items-center mt-0.5 min-h-[20px] gap-2 flex-wrap">
+                                    ${isEditing ? `
+                                        <div class="flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded-lg border border-slate-300 shadow-sm" title="手動調整獎盃">
+                                            <i class="fa-solid fa-trophy text-[10px] text-yellow-500"></i>
+                                            <span class="text-xs font-black text-slate-700 w-3 text-center">${group.trophies}</span>
+                                            <div class="flex flex-col gap-0.5 ml-1">
+                                                <button onclick="addTrophy(${group.id})" class="w-4 h-3 flex items-center justify-center bg-green-200 hover:bg-green-400 text-green-800 rounded-sm"><i class="fa-solid fa-chevron-up text-[8px]"></i></button>
+                                                <button onclick="removeTrophy(${group.id})" class="w-4 h-3 flex items-center justify-center bg-red-200 hover:bg-red-400 text-red-800 rounded-sm"><i class="fa-solid fa-chevron-down text-[8px]"></i></button>
+                                            </div>
+                                        </div>
+                                    ` : `${group.trophies > 0 ? `<div class="flex items-center bg-yellow-100 px-1.5 py-0.5 rounded-full border border-yellow-300"><i class="fa-solid fa-trophy text-[10px] text-yellow-600 mr-0.5"></i><span class="text-xs font-black text-yellow-700">${group.trophies}</span></div>` : ''}`}
+
+                                    ${group.shields > 0 ? `<div class="flex items-center bg-blue-100 px-1.5 py-0.5 rounded-full border border-blue-300" title="可抵擋扣分"><i class="fa-solid fa-shield-halved text-[10px] text-blue-600 mr-0.5"></i><span class="text-xs font-black text-blue-700">${group.shields}</span></div>` : ''}
+                                    ${!isEditing && isMaxLevel ? `<span class="text-[10px] font-black bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 bg-clip-text text-transparent drop-shadow-sm whitespace-nowrap hidden lg:inline">« ${family.title} »</span>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white/90 rounded-xl px-3 py-1 shadow-sm border-2 border-white flex items-center justify-center min-w-[70px]">
+                            <span class="text-2xl font-black tabular-nums transition-transform duration-200 ${theme.text} ${animatingScores[group.id] ? 'score-bump' : ''}">${group.score}</span>
+                        </div>
+                    </div>
+
+                    <div class="relative flex flex-col items-center justify-center rounded-2xl p-2 mb-3 h-36 border-2 transition-all duration-700 overflow-hidden cursor-pointer ${getPetStyleClass(petLevel)} ${isEditing ? 'hover:brightness-95' : ''}" onclick="changePetFamily(${group.id})">
+                        ${petBubbles[group.id] && !isEditing ? `<div class="absolute top-2 right-2 bg-white px-3 py-1.5 rounded-2xl rounded-br-none shadow-md z-30 animate-float-up flex items-center gap-1 border border-slate-200"><i class="fa-regular fa-comment-dots text-slate-400 text-sm"></i><span class="text-xs font-bold text-slate-700">${petBubbles[group.id]}</span></div>` : ''}
+                        ${levelUpGroups[group.id] ? `<div class="absolute inset-0 z-20 flex items-center justify-center pointer-events-none"><div class="absolute w-[200%] h-[200%] bg-white animate-[ping_0.8s_ease-out_forwards]"></div><div class="absolute w-[150%] h-[150%] bg-yellow-300/50 animate-spin-slow"></div></div>` : ''}
+                        
+                        <div class="transition-all duration-700 ease-out z-10 flex-1 flex items-center justify-center ${getPetSizeClass(petLevel)} ${levelUpGroups[group.id] ? 'level-up-glow' : ''}">${family.stages[petLevel]}</div>
+
+                        <div class="absolute top-2 left-2 backdrop-blur-sm px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-bold shadow-sm border z-10 ${isMaxLevel ? 'bg-black/80 text-yellow-400 border-yellow-600' : 'bg-white/90 text-slate-600 border-slate-200'}">
+                            ${family.name} · <span class="${isMaxLevel ? 'animate-pulse' : ''}">${STAGE_NAMES[petLevel]}</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="text-xs font-bold text-slate-500 whitespace-nowrap w-[3.5rem] text-right">${isMaxLevel ? '🎉 封神' : `差 ${progress.nextReq - group.score} 分`}</div>
+                        <div class="flex-1 h-2.5 bg-slate-200/80 rounded-full overflow-hidden shadow-inner">
+                            <div class="h-full transition-all duration-700 ease-out relative ${isMaxLevel ? 'bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500' : 'bg-gradient-to-r from-green-400 to-emerald-500'}" style="width: ${progress.percent}%;">
+                                <div class="absolute inset-0 bg-white/20 animate-pulse"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    ${!isEditing ? `
+                    <div class="flex flex-col gap-1.5 mt-auto">
+                        <div class="grid grid-cols-2 gap-1.5">
+                            ${GOOD_BEHAVIORS.map(btn => `<button onclick="updateScore(${group.id}, ${btn.score}, event)" class="flex justify-center items-center py-1.5 px-1 rounded-lg text-white font-bold text-[13px] shadow-sm transition-transform active:scale-95 ${btn.color}">${btn.label} <i class="fa-solid fa-plus text-[10px] ml-1"></i>${btn.score}</button>`).join('')}
+                        </div>
+                        <div class="grid grid-cols-3 gap-1.5 mt-0.5">
+                            ${BAD_BEHAVIORS.map(btn => `<button onclick="updateScore(${group.id}, ${btn.score})" class="flex justify-center items-center py-1.5 px-1 rounded-lg text-white font-bold text-[13px] shadow-sm transition-transform active:scale-95 ${btn.color}">${btn.label} ${btn.score}</button>`).join('')}
+                        </div>
+                        <div class="grid grid-cols-[1fr_2fr_1fr] gap-1.5 mt-0.5">
+                            <button onclick="updateScore(${group.id}, -1)" class="flex justify-center items-center py-2 rounded-lg text-white font-black shadow-sm transition-transform active:scale-95 bg-slate-400 hover:bg-slate-500">- 1</button>
+                            <button onclick="updateScore(${group.id}, 1, event)" class="flex justify-center items-center py-2 rounded-lg text-white font-black shadow-sm transition-transform active:scale-95 ${theme.btnGood}">+ 1</button>
+                            <button onclick="addShield(${group.id}, event)" title="頒發魔法護盾" class="flex justify-center items-center py-2 rounded-lg text-white font-black shadow-sm transition-transform active:scale-95 bg-blue-400 hover:bg-blue-500"><i class="fa-solid fa-shield-halved"></i></button>
+                        </div>
+                    </div>
+                    ` : '<div class="mt-auto pt-4 text-center text-sm font-bold text-slate-500 border-t-2 border-dashed border-slate-300">點擊名稱、頭像或寵物區域來修改</div>'}
+                </div>`;
+            });
+            document.getElementById('groups-container').innerHTML = html;
+        }
+
+        window.openModal = function(type) {
+            document.getElementById('modal-overlay').classList.remove('hidden');
+            ['boss-setup', 'destiny', 'focus-setup', 'fever-setup', 'roulette', 'quest', 'settlement', 'boss-defeat', 'pokedex', 'factory-reset'].forEach(id => { const el = document.getElementById(`modal-${id}`); if(el) el.classList.add('hidden'); });
+
+            if(type === 'quest') { document.getElementById('modal-quest').classList.remove('hidden'); document.getElementById('quest-content').innerText = QUEST_POOL[Math.floor(Math.random() * QUEST_POOL.length)]; } 
+            else if(type === 'settlement') {
+                document.getElementById('modal-settlement').classList.remove('hidden');
+                const maxScore = Math.max(...appState.groups.map(g => g.score), 0); const winners = appState.groups.filter(g => g.score === maxScore && maxScore > 0);
+                let html = '';
+                if(maxScore > 0) {
+                    html = '<p class="text-slate-600 font-bold mb-4">掌聲鼓勵！本週最高分冠軍：</p><div class="flex flex-wrap justify-center gap-4">';
+                    winners.forEach(w => { html += `<div class="px-6 py-3 rounded-2xl ${CUTE_COLORS[w.themeIndex].bg} border-2 flex items-center gap-3 shadow-md"><span class="text-4xl">${w.icon}</span><div class="text-left"><div class="font-black text-xl">${w.name}</div><div class="text-sm font-bold text-slate-500">${w.score} 分</div></div></div>`; });
+                    html += '</div>';
+                } else { html = '<p class="text-rose-600 font-bold text-xl mb-2">⚠️ 目前所有小組都是 0 分喔！</p><p class="text-slate-500">必須要有分數才能選出冠軍並頒發獎盃。</p>'; }
+                document.getElementById('settlement-content').innerHTML = html;
+            } 
+            else if(type === 'boss-defeat') { document.getElementById('modal-boss-defeat').classList.remove('hidden'); }
+            else if(type === 'pokedex') { document.getElementById('modal-pokedex').classList.remove('hidden'); renderPokedex(); } 
+            else if(type === 'factory-reset') { document.getElementById('modal-factory-reset').classList.remove('hidden'); } 
+            else if(type === 'fever-setup') { document.getElementById('modal-fever-setup').classList.remove('hidden'); } 
+            else if(type === 'focus-setup') { document.getElementById('modal-focus-setup').classList.remove('hidden'); } 
+            else if(type === 'destiny') { document.getElementById('modal-destiny').classList.remove('hidden'); } 
+            else if(type === 'boss-setup') { 
+                tempBossIdx = appState.boss.currentIdx; renderBossPreview();
+                document.getElementById('setup-boss-hp').value = appState.boss.maxHp;
+                document.getElementById('setup-boss-mult').value = appState.boss.damageMultiplier || 1;
+                document.getElementById('setup-boss-reward').value = appState.boss.defeatReward || 0;
+                document.getElementById('modal-boss-setup').classList.remove('hidden'); 
+            }
+            else if(type === 'roulette') {
+                document.getElementById('modal-roulette').classList.remove('hidden');
+                document.getElementById('roulette-display').innerHTML = `<span class="text-6xl mb-2">❓</span><span class="text-2xl font-black text-white">準備就緒</span>`;
+                const btn = document.getElementById('roulette-btn'); btn.disabled = false; btn.innerText = '開 始 抽 籤 ！'; btn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        };
+
+        window.closeModal = function() { document.getElementById('modal-overlay').classList.add('hidden'); };
+
+        window.executeSettlement = function() {
+            const maxScore = Math.max(...appState.groups.map(g => g.score), 0);
+            if (maxScore > 0) triggerConfetti();
+            appState.groups = appState.groups.map(g => ({ ...g, score: 0, shields: 0, trophies: (g.score === maxScore && maxScore > 0) ? g.trophies + 1 : g.trophies }));
+            appState.boss.hp = appState.boss.maxHp; saveToLocal(); renderApp(); closeModal();
+        };
+
+        window.executeFactoryReset = function() {
+            playSFX('wipe'); const savedPokedex = [...appState.unlockedPets]; appState = getInitialState(); appState.unlockedPets = savedPokedex; 
+            saveToLocal(); renderApp(); closeModal(); triggerConfetti();
+            setTimeout(() => alert("系統已重置！分數、獎盃、魔王皆已清空，但【神獸圖鑑】已保留！"), 500);
+        };
+
+        function renderPokedex() {
+            let html = '';
+            PET_FAMILIES.forEach(f => {
+                const unlocked = appState.unlockedPets.includes(f.id);
+                html += `<div class="flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl border-2 transition-all ${unlocked ? 'bg-slate-700 border-yellow-500 shadow-[0_0_15px_rgba(251,191,36,0.3)] hover:scale-105' : 'bg-slate-900 border-slate-700 opacity-80'}"><div class="text-4xl sm:text-5xl mb-2 ${unlocked ? 'animate-pulse-slow drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]' : 'filter grayscale brightness-0 opacity-40'}">${f.stages[f.stages.length - 1]}</div><div class="text-xs sm:text-sm font-black text-center ${unlocked ? 'text-yellow-400' : 'text-slate-500'}">${unlocked ? f.title : '???'}</div>${!unlocked ? '<div class="text-[10px] text-slate-600 mt-1 font-bold">50 分解鎖</div>' : '<div class="text-[10px] text-green-400 mt-1 font-bold">已解鎖</div>'}</div>`;
+            });
+            document.getElementById('pokedex-grid').innerHTML = html;
+        }
+
+        renderApp();
+    </script>
+</body>
+</html>
