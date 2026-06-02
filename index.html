@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌟 班級超級之星 - 24種圖鑑擴充版 🌟</title>
+    <title>🌟 班級超級之星 - 終極完整版 🌟</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -52,7 +52,6 @@
         body.focus-mode .star-layer { opacity: 1; }
         @keyframes starsAnim { 0% { background-position: 0 0; } 100% { background-position: -1000px 1000px; } }
 
-        /* 圖鑑卷軸優化 */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -65,10 +64,12 @@
 
     <div class="star-layer"></div>
 
+    <!-- 狂熱時間置頂提示 -->
     <div id="fever-timer-display" class="hidden fixed top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-orange-500 to-red-500 text-white px-8 py-3 rounded-full font-black text-3xl shadow-[0_0_30px_rgba(239,68,68,0.8)] z-50 animate-pulse flex items-center gap-3 border-4 border-yellow-300">
         <i class="fa-solid fa-fire text-yellow-300"></i><span>狂熱雙倍 <span id="fever-time-text" class="tabular-nums">03:00</span></span>
     </div>
 
+    <!-- 專注模式置頂提示 -->
     <div id="focus-timer-display" class="hidden fixed top-4 left-1/2 transform -translate-x-1/2 bg-slate-800 text-indigo-300 px-8 py-3 rounded-full font-black text-2xl shadow-[0_0_20px_rgba(0,0,0,0.8)] z-50 flex items-center gap-3 border-2 border-indigo-500">
         <i class="fa-solid fa-moon text-yellow-200 animate-pulse-slow"></i><span>專注時光 <span id="focus-time-text" class="tabular-nums text-white">05:00</span></span>
         <button onclick="endFocusMode()" class="ml-4 bg-slate-700 hover:bg-slate-600 text-white text-sm px-3 py-1 rounded-lg">結束</button>
@@ -79,13 +80,14 @@
 
     <div class="max-w-7xl mx-auto p-2 sm:p-4 relative z-10">
         
-        <!-- ⚔️ 魔王系統 -->
+        <!-- ⚔️ 頂部：班級討伐戰 (魔王系統) -->
         <div class="glass-panel mb-4 bg-slate-900 p-4 sm:px-6 sm:py-4 rounded-3xl shadow-xl border-4 border-slate-700 flex flex-col sm:flex-row items-center gap-4 relative overflow-hidden" id="boss-container">
             <div class="absolute inset-0 bg-gradient-to-r from-red-900/50 to-purple-900/50 pointer-events-none"></div>
             
             <button onclick="openModal('boss-setup')" class="absolute top-2 right-4 text-slate-500 hover:text-white transition-colors z-20" title="魔王討伐設定"><i class="fa-solid fa-gear"></i></button>
 
             <div class="flex items-center gap-3 z-10 w-full sm:w-auto justify-center sm:justify-start relative">
+                <!-- 補血特效顯示區 -->
                 <div id="boss-heal-effect" class="absolute -top-6 left-1/2 transform -translate-x-1/2 w-full text-center pointer-events-none"></div>
                 <div id="boss-emoji" class="text-5xl filter drop-shadow-[0_0_8px_rgba(255,0,0,0.8)] transition-transform duration-200 relative">🗣️</div>
                 <div>
@@ -99,6 +101,7 @@
                     <div id="boss-hp-bar" class="h-full bg-gradient-to-r from-red-500 to-orange-500 transition-all duration-500 ease-out flex items-center justify-end px-2" style="width: 100%;">
                         <div class="absolute inset-0 bg-white/20 animate-pulse"></div>
                     </div>
+                    <!-- 死亡遮罩 -->
                      <div id="boss-dead-overlay" class="hidden absolute inset-0 bg-slate-900/80 flex items-center justify-center">
                         <span class="text-red-500 font-black text-sm tracking-widest">已擊敗 (請至設定更換魔王)</span>
                      </div>
@@ -160,11 +163,11 @@
 
     </div>
 
-    <!-- === 所有彈出視窗 === -->
+    <!-- === 唯一且乾淨的彈出視窗容器 === -->
     <div id="modal-overlay" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex flex-col items-center justify-center z-50 p-4 hidden">
         
-        <!-- 魔王設定視窗 -->
-        <div id="modal-boss-setup" class="hidden bg-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border-4 border-red-500 text-center relative max-h-[90vh] overflow-y-auto custom-scrollbar">
+        <!-- 1. 魔王設定視窗 -->
+        <div id="modal-boss-setup" class="modal-content hidden bg-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border-4 border-red-500 text-center relative max-h-[90vh] overflow-y-auto custom-scrollbar">
             <button onclick="closeModal()" class="absolute top-4 right-4 w-10 h-10 bg-slate-700 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-600 font-bold"><i class="fa-solid fa-xmark"></i></button>
             <i class="fa-solid fa-skull text-6xl text-red-500 mb-4 animate-pulse"></i>
             <h3 class="text-3xl font-black text-white mb-6">魔王討伐設定</h3>
@@ -185,8 +188,8 @@
             <button onclick="healBossFull()" class="w-full py-2 rounded-xl font-bold bg-green-600 text-white hover:bg-green-700 shadow-sm transition-colors text-sm"><i class="fa-solid fa-heart mr-2"></i>強制補滿魔王血量</button>
         </div>
 
-        <!-- 命運大轉盤視窗 -->
-        <div id="modal-destiny" class="hidden bg-purple-900 rounded-3xl p-8 max-w-md w-full shadow-[0_0_50px_rgba(168,85,247,0.5)] border-4 border-purple-400 text-center relative overflow-hidden">
+        <!-- 2. 命運大轉盤視窗 -->
+        <div id="modal-destiny" class="modal-content hidden bg-purple-900 rounded-3xl p-8 max-w-md w-full shadow-[0_0_50px_rgba(168,85,247,0.5)] border-4 border-purple-400 text-center relative overflow-hidden">
             <button onclick="closeModal()" class="absolute top-4 right-4 w-10 h-10 bg-purple-800 rounded-full flex items-center justify-center text-purple-300 hover:bg-purple-700 font-bold z-20"><i class="fa-solid fa-xmark"></i></button>
             <h3 class="text-3xl font-black text-purple-200 mb-6 tracking-widest drop-shadow-[0_0_10px_rgba(216,180,254,0.8)]">🔮 命運之輪 🔮</h3>
             <div class="bg-purple-950 rounded-2xl p-6 mb-6 shadow-inner border-4 border-purple-800 relative h-40 flex items-center justify-center">
@@ -195,8 +198,8 @@
             <button id="destiny-btn" onclick="spinDestinyWheel()" class="w-full py-4 rounded-full font-black text-2xl bg-gradient-to-r from-fuchsia-500 to-purple-600 text-white hover:from-fuchsia-400 hover:to-purple-500 shadow-[0_5px_0_#7e22ce] active:translate-y-[5px] transition-all">轉 動 命 運 ！</button>
         </div>
 
-        <!-- 魔王擊敗視窗 -->
-        <div id="modal-boss-defeat" class="hidden bg-gradient-to-b from-yellow-100 to-orange-100 rounded-3xl p-8 max-w-md w-full shadow-2xl border-4 border-yellow-400 text-center relative">
+        <!-- 3. 魔王擊敗視窗 -->
+        <div id="modal-boss-defeat" class="modal-content hidden bg-gradient-to-b from-yellow-100 to-orange-100 rounded-3xl p-8 max-w-md w-full shadow-2xl border-4 border-yellow-400 text-center relative">
             <i class="fa-solid fa-medal text-6xl text-yellow-500 mb-4 animate-bounce"></i>
             <h3 class="text-3xl font-black text-orange-600 mb-2">討伐成功！</h3>
             <p class="text-xl font-bold text-slate-700 mb-6">全班成功擊敗了魔王！</p>
@@ -205,8 +208,8 @@
             <button onclick="closeModal()" class="px-8 py-3 rounded-full font-black bg-orange-500 text-white hover:bg-orange-600 shadow-lg card-pop text-lg w-full">繼續冒險</button>
         </div>
 
-        <!-- 專注模式設定 -->
-        <div id="modal-focus-setup" class="hidden bg-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border-4 border-indigo-500 text-center relative">
+        <!-- 4. 專注模式設定 -->
+        <div id="modal-focus-setup" class="modal-content hidden bg-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border-4 border-indigo-500 text-center relative">
             <button onclick="closeModal()" class="absolute top-4 right-4 w-10 h-10 bg-slate-700 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-600 font-bold"><i class="fa-solid fa-xmark"></i></button>
             <i class="fa-solid fa-moon text-6xl text-yellow-200 mb-4 animate-pulse-slow"></i>
             <h3 class="text-3xl font-black text-indigo-300 mb-2">專注時光</h3>
@@ -219,19 +222,16 @@
             <button onclick="closeModal()" class="w-full py-3 rounded-xl font-bold bg-slate-700 text-slate-300 hover:bg-slate-600">取消</button>
         </div>
 
-        <!-- 圖鑑視窗 (增加滾動條) -->
-        <div id="modal-pokedex" class="hidden bg-slate-800 rounded-3xl p-6 sm:p-8 max-w-4xl w-full shadow-2xl border-4 border-slate-600 text-center relative max-h-[85vh] overflow-hidden flex flex-col">
+        <!-- 5. 圖鑑視窗 (增加滾動條) -->
+        <div id="modal-pokedex" class="modal-content hidden bg-slate-800 rounded-3xl p-6 sm:p-8 max-w-4xl w-full shadow-2xl border-4 border-slate-600 text-center relative max-h-[85vh] overflow-hidden flex flex-col">
             <button onclick="closeModal()" class="absolute top-4 right-4 w-10 h-10 bg-slate-700 rounded-full flex items-center justify-center text-slate-300 hover:bg-slate-600 font-bold z-20 shadow-md"><i class="fa-solid fa-xmark"></i></button>
             <h3 class="text-3xl font-black text-white mb-2 tracking-widest shrink-0 mt-2">🌌 星際神獸圖鑑 🌌</h3>
             <p class="text-slate-400 font-bold mb-4 shrink-0">將寵物養至「50分神話態」即可永久解鎖圖鑑！</p>
-            
-            <div id="pokedex-grid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 sm:gap-4 overflow-y-auto custom-scrollbar p-2 pb-6 flex-1">
-                <!-- 圖鑑由 JS 生成 -->
-            </div>
+            <div id="pokedex-grid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 sm:gap-4 overflow-y-auto custom-scrollbar p-2 pb-6 flex-1"></div>
         </div>
 
-        <!-- 狂熱時間設定 -->
-        <div id="modal-fever-setup" class="hidden bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border-4 border-orange-300 text-center relative">
+        <!-- 6. 狂熱時間設定 -->
+        <div id="modal-fever-setup" class="modal-content hidden bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border-4 border-orange-300 text-center relative">
             <button onclick="closeModal()" class="absolute top-4 right-4 w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 font-bold"><i class="fa-solid fa-xmark"></i></button>
             <i class="fa-solid fa-fire-flame-curved text-6xl text-orange-500 mb-4 animate-pulse"></i>
             <h3 class="text-3xl font-black text-orange-600 mb-2">狂熱雙倍時間</h3>
@@ -244,8 +244,8 @@
             <button onclick="closeModal()" class="w-full py-3 rounded-xl font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">取消</button>
         </div>
 
-        <!-- 幸運抽籤機 -->
-        <div id="modal-roulette" class="hidden bg-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border-8 border-yellow-400 text-center relative overflow-hidden">
+        <!-- 7. 幸運抽籤機 -->
+        <div id="modal-roulette" class="modal-content hidden bg-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border-8 border-yellow-400 text-center relative overflow-hidden">
             <button onclick="closeModal()" class="absolute top-4 right-4 w-10 h-10 bg-slate-700 rounded-full flex items-center justify-center text-slate-300 hover:bg-slate-600 font-bold z-20"><i class="fa-solid fa-xmark"></i></button>
             <h3 class="text-3xl font-black text-yellow-400 mb-6 tracking-widest drop-shadow-[0_0_10px_rgba(250,204,21,0.5)]">✨ 命運抽籤機 ✨</h3>
             <div class="bg-slate-900 rounded-2xl p-6 mb-6 shadow-inner border-4 border-slate-700 relative">
@@ -255,8 +255,8 @@
             <button id="roulette-btn" onclick="startRoulette()" class="w-full py-4 rounded-full font-black text-2xl bg-gradient-to-b from-yellow-300 to-amber-500 text-amber-900 hover:from-yellow-400 hover:to-amber-600 shadow-[0_5px_0_#b45309] active:translate-y-[5px] transition-all">開 始 抽 籤 ！</button>
         </div>
 
-        <!-- 每日任務 -->
-        <div id="modal-quest" class="hidden bg-[#fdf6e3] rounded-3xl p-8 max-w-md w-full shadow-2xl border-[8px] border-double border-amber-800 text-center relative">
+        <!-- 8. 每日任務 -->
+        <div id="modal-quest" class="modal-content hidden bg-[#fdf6e3] rounded-3xl p-8 max-w-md w-full shadow-2xl border-[8px] border-double border-amber-800 text-center relative">
             <button onclick="closeModal()" class="absolute top-4 right-4 w-10 h-10 bg-amber-200 rounded-full flex items-center justify-center text-amber-800 hover:bg-amber-300 font-bold"><i class="fa-solid fa-xmark"></i></button>
             <i class="fa-solid fa-scroll text-6xl text-amber-600 mb-4 animate-bounce"></i>
             <h3 class="text-3xl font-black text-amber-900 mb-6 border-b-2 border-amber-300 pb-4">📜 今日突發任務 📜</h3>
@@ -264,21 +264,21 @@
             <button onclick="closeModal()" class="px-8 py-3 rounded-full font-black bg-amber-700 text-amber-50 hover:bg-amber-800 shadow-lg card-pop text-lg w-full">接受挑戰！</button>
         </div>
 
-        <!-- 每週結算 -->
-        <div id="modal-settlement" class="hidden bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border-4 border-indigo-200 text-center relative">
+        <!-- 9. 每週結算 -->
+        <div id="modal-settlement" class="modal-content hidden bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border-4 border-indigo-200 text-center relative">
             <button onclick="closeModal()" class="absolute top-4 right-4 w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 font-bold"><i class="fa-solid fa-xmark"></i></button>
             <i class="fa-solid fa-crown text-6xl text-yellow-500 mb-4 animate-bounce"></i>
             <h3 class="text-3xl font-black text-indigo-800 mb-2">🎊 本週結算典禮 🎊</h3>
             <div id="settlement-content" class="my-6 max-h-[40vh] overflow-y-auto"></div>
-            <div class="bg-red-50 text-red-600 text-sm font-bold p-3 rounded-xl mb-4 border border-red-100">⚠️ 結算後，小組分數會歸零，魔王血量重置！<br>圖鑑與累積的獎盃則會永久保留。</div>
+            <div class="bg-red-50 text-red-600 text-sm font-bold p-3 rounded-xl mb-4 border border-red-100">⚠️ 結算後，小組分數會歸零！<br>圖鑑與累積的獎盃則會永久保留。</div>
             <div class="flex gap-4">
                 <button onclick="closeModal()" class="flex-1 py-3 rounded-xl font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">取消</button>
                 <button onclick="executeSettlement()" class="flex-1 py-3 rounded-xl font-bold bg-indigo-500 text-white hover:bg-indigo-600 shadow-lg shadow-indigo-200 card-pop">確認結算並歸零</button>
             </div>
         </div>
         
-        <!-- 新學期重置 -->
-        <div id="modal-factory-reset" class="hidden bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border-4 border-rose-200 text-center relative">
+        <!-- 10. 新學期重置 -->
+        <div id="modal-factory-reset" class="modal-content hidden bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border-4 border-rose-200 text-center relative">
             <button onclick="closeModal()" class="absolute top-4 right-4 w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 font-bold"><i class="fa-solid fa-xmark"></i></button>
             <i class="fa-solid fa-rotate-right text-6xl text-rose-500 mb-4 animate-spin-slow"></i>
             <h3 class="text-3xl font-black text-rose-700 mb-2">新學期重置</h3>
@@ -322,8 +322,6 @@
             { id: 9, name: '飛禽', stages: ['🪶', '🥚', '🐤', '🦉', '🦅', '🦢', '🦚', '🕊️'], title: '天空神聖使者' },
             { id: 10, name: '幽冥', stages: ['🕯️', '🧿', '🕸️', '🕷️', '🎃', '🦇', '🧛', '👻'], title: '暗影幽靈王' },
             { id: 11, name: '幻樂', stages: ['🎵', '🎶', '🎺', '🎸', '🎹', '🎻', '🎧', '🎸'], title: '靈魂交響樂章' },
-            
-            // 全新擴充的 12 種神獸！
             { id: 12, name: '冰雪', stages: ['❄️', '🧊', '🍧', '⛄', '🐧', '🦭', '🐻‍❄️', '🏔️'], title: '極地冰霜領主' },
             { id: 13, name: '烈焰', stages: ['🪵', '♨️', '🧨', '🎇', '💥', '🔥', '☄️', '🌋'], title: '煉獄熔岩巨獸' },
             { id: 14, name: '寶石', stages: ['🪨', '⛏️', '🪙', '💍', '💎', '🔮', '👑', '✨'], title: '璀璨光芒星鑽' },
@@ -370,8 +368,8 @@
             { text: '🎁 幸運抽籤！馬上抽出幸運小組', action: () => setTimeout(() => { openModal('roulette'); document.getElementById('roulette-btn').click(); }, 2000) }
         ];
 
-        // 🌟 保持這把舊鑰匙，讓老師保留之前解鎖的圖鑑！ 🌟
-        const STORAGE_KEY = 'class_star_save_data_v11'; 
+        // 🌟 換一把全新的乾淨金鑰，徹底解決之前圖層重疊殘留的 Bug 🌟
+        const STORAGE_KEY = 'class_star_save_data_final_v1'; 
         
         function getInitialState() {
             return {
@@ -400,6 +398,13 @@
 
         function loadFromLocal() {
             try {
+                // 如果有舊版 v11 的圖鑑，我們幫老師自動繼承過來！
+                const oldDataStr = localStorage.getItem('class_star_save_data_v11');
+                let inheritedPets = [];
+                if (oldDataStr) {
+                    try { inheritedPets = JSON.parse(oldDataStr).unlockedPets || []; } catch(e){}
+                }
+
                 const savedData = localStorage.getItem(STORAGE_KEY);
                 if (savedData) {
                     const parsedData = JSON.parse(savedData);
@@ -411,9 +416,11 @@
                             damageMultiplier: parsedData.boss?.damageMultiplier || 1, 
                             defeatReward: parsedData.boss?.defeatReward || 0         
                         },
-                        unlockedPets: parsedData.unlockedPets || [],
+                        unlockedPets: parsedData.unlockedPets || inheritedPets,
                         groups: parsedData.groups ? parsedData.groups.map(g => ({...g, shields: g.shields || 0, trophies: g.trophies || 0})) : getInitialState().groups
                     };
+                } else {
+                    appState.unlockedPets = inheritedPets; // 套用繼承
                 }
             } catch (e) { console.error(e); }
         }
@@ -594,7 +601,7 @@
             }
         }
 
-        // === 幸運抽籤機 ===
+        // === 幸運抽籤機 (修復版：不加分) ===
         window.startRoulette = function() {
             const btn = document.getElementById('roulette-btn'); const display = document.getElementById('roulette-display');
             if(btn.disabled) return;
@@ -611,13 +618,14 @@
                     playSFX('tada');
                     display.innerHTML = `<span class="text-7xl mb-2 drop-shadow-[0_0_15px_rgba(250,204,21,0.8)] animate-bounce">${randomGroup.icon}</span><span class="text-4xl font-black text-white bg-red-500 px-4 py-1 rounded-xl shadow-lg">${randomGroup.name}</span>`;
                     triggerConfetti();
+                    // 不再呼叫 updateScore 加分，純抽籤
                     setTimeout(() => { btn.disabled = false; btn.innerText = '再 抽 一 次 ！'; btn.classList.remove('opacity-50', 'cursor-not-allowed'); }, 2000);
                 }
             }
             tick();
         }
 
-        // === 手動增減獎盃功能 ===
+        // === 手動增減獎盃 ===
         window.addTrophy = function(id) {
             if(!isEditing) return;
             appState.groups = appState.groups.map(g => g.id === id ? { ...g, trophies: g.trophies + 1 } : g);
@@ -666,6 +674,7 @@
             let finalDelta = baseDelta;
             let isSpecialHit = false;
 
+            // 🛡️ 護盾抵擋
             const groupIndex = appState.groups.findIndex(g => g.id === id);
             if (groupIndex !== -1 && finalDelta < 0 && appState.groups[groupIndex].shields > 0) {
                 appState.groups[groupIndex].shields -= 1;
@@ -676,6 +685,7 @@
                 return;
             }
 
+            // 狂熱與暴擊
             if (feverTimeLeft > 0 && baseDelta > 0) {
                 finalDelta = baseDelta * 2; playSFX('crit');
                 if (event) { const rect = event.target.getBoundingClientRect(); showFloatingText(`🔥狂熱雙倍 +${finalDelta}!`, rect.left, rect.top - 20, 'fever-text'); }
@@ -708,6 +718,7 @@
                 return g;
             });
 
+            // ⚔️ 魔王扣血/回血
             if (finalDelta > 0) {
                 if (appState.boss.hp > 0) {
                     const multiplier = appState.boss.damageMultiplier || 1;
@@ -772,7 +783,6 @@
             const reward = parseInt(document.getElementById('setup-boss-reward').value) || 0;
             
             if (appState.boss.maxHp !== hp) { appState.boss.hp = hp; }
-            
             appState.boss.currentIdx = tempBossIdx; 
             appState.boss.maxHp = hp; appState.boss.damageMultiplier = mult; appState.boss.defeatReward = reward;
             if(appState.boss.hp > hp) appState.boss.hp = hp; 
@@ -799,6 +809,7 @@
             setTimeout(() => { delete petBubbles[randomGroup.id]; renderApp(); }, 5000);
         }, 15000);
 
+        // === 畫面渲染 ===
         function renderApp() {
             const currentBoss = BOSS_LIST[appState.boss.currentIdx];
             document.getElementById('boss-name').innerText = currentBoss.name; document.getElementById('boss-emoji').innerText = currentBoss.emoji;
@@ -809,6 +820,7 @@
             
             const mult = appState.boss.damageMultiplier || 1; document.getElementById('boss-dmg-hint').innerText = mult > 1 ? `(攻擊倍率 x${mult})` : '';
 
+            // 魔王死亡遮罩
             if (appState.boss.hp <= 0) { document.getElementById('boss-dead-overlay').classList.remove('hidden'); } 
             else { document.getElementById('boss-dead-overlay').classList.add('hidden'); }
 
@@ -895,20 +907,28 @@
             document.getElementById('groups-container').innerHTML = html;
         }
 
+        // 開啟對應視窗，並隱藏其他視窗，徹底防止圖層重疊
         window.openModal = function(type) {
             document.getElementById('modal-overlay').classList.remove('hidden');
-            ['boss-setup', 'destiny', 'focus-setup', 'fever-setup', 'roulette', 'quest', 'settlement', 'boss-defeat', 'pokedex', 'factory-reset'].forEach(id => { const el = document.getElementById(`modal-${id}`); if(el) el.classList.add('hidden'); });
+            const allModals = document.querySelectorAll('.modal-content');
+            allModals.forEach(el => el.classList.add('hidden'));
 
-            if(type === 'quest') { document.getElementById('modal-quest').classList.remove('hidden'); document.getElementById('quest-content').innerText = QUEST_POOL[Math.floor(Math.random() * QUEST_POOL.length)]; } 
+            if(type === 'quest') { 
+                document.getElementById('modal-quest').classList.remove('hidden'); 
+                document.getElementById('quest-content').innerText = QUEST_POOL[Math.floor(Math.random() * QUEST_POOL.length)]; 
+            } 
             else if(type === 'settlement') {
                 document.getElementById('modal-settlement').classList.remove('hidden');
-                const maxScore = Math.max(...appState.groups.map(g => g.score), 0); const winners = appState.groups.filter(g => g.score === maxScore && maxScore > 0);
+                const maxScore = Math.max(...appState.groups.map(g => g.score), 0); 
+                const winners = appState.groups.filter(g => g.score === maxScore && maxScore > 0);
                 let html = '';
                 if(maxScore > 0) {
                     html = '<p class="text-slate-600 font-bold mb-4">掌聲鼓勵！本週最高分冠軍：</p><div class="flex flex-wrap justify-center gap-4">';
                     winners.forEach(w => { html += `<div class="px-6 py-3 rounded-2xl ${CUTE_COLORS[w.themeIndex].bg} border-2 flex items-center gap-3 shadow-md"><span class="text-4xl">${w.icon}</span><div class="text-left"><div class="font-black text-xl">${w.name}</div><div class="text-sm font-bold text-slate-500">${w.score} 分</div></div></div>`; });
                     html += '</div>';
-                } else { html = '<p class="text-rose-600 font-bold text-xl mb-2">⚠️ 目前所有小組都是 0 分喔！</p><p class="text-slate-500">必須要有分數才能選出冠軍並頒發獎盃。</p>'; }
+                } else { 
+                    html = '<p class="text-rose-600 font-bold text-xl mb-2">⚠️ 目前所有小組都是 0 分喔！</p><p class="text-slate-500">必須要有分數才能選出冠軍並頒發獎盃。</p>'; 
+                }
                 document.getElementById('settlement-content').innerHTML = html;
             } 
             else if(type === 'boss-defeat') { document.getElementById('modal-boss-defeat').classList.remove('hidden'); }
@@ -931,13 +951,15 @@
             }
         };
 
-        window.closeModal = function() { document.getElementById('modal-overlay').classList.add('hidden'); };
+        window.closeModal = function() { 
+            document.getElementById('modal-overlay').classList.add('hidden'); 
+        };
 
         window.executeSettlement = function() {
             const maxScore = Math.max(...appState.groups.map(g => g.score), 0);
             if (maxScore > 0) triggerConfetti();
             appState.groups = appState.groups.map(g => ({ ...g, score: 0, shields: 0, trophies: (g.score === maxScore && maxScore > 0) ? g.trophies + 1 : g.trophies }));
-            appState.boss.hp = appState.boss.maxHp; saveToLocal(); renderApp(); closeModal();
+            saveToLocal(); renderApp(); closeModal();
         };
 
         window.executeFactoryReset = function() {
